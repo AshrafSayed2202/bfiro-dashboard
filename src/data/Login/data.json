@@ -1,0 +1,16 @@
+{
+    "email": {
+        "value": "",
+        "hasError": {
+            "status": false,
+            "message": ""
+        }
+    },
+    "password": {
+        "value": "",
+        "hasError": {
+            "status": false,
+            "message": ""
+        }
+    }
+}
