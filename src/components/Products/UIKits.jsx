@@ -25,7 +25,7 @@ const UIKits = () => {
     return (
         <div>
             <h1 className="text-2xl mb-4">UI Kits</h1>
-            <AgGridTable
+            {/* <AgGridTable
                 importedData={data}
                 tableName="uiKits"
                 colDefs={colDefs}
@@ -37,7 +37,7 @@ const UIKits = () => {
                 colsManage={true}
                 roleNumber={65} // Admin role
             // reloadEndpoint="/api/ui-kits" // Uncomment for real endpoint
-            />
+            /> */}
         </div>
     );
 };

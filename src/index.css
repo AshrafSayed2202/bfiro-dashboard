@@ -63,3 +63,10 @@ code {
     background-position: 200% 0;
   }
 }
+.scrollbar-hide {
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

@@ -24,7 +24,7 @@ const Users = () => {
     return (
         <div>
             <h1 className="text-2xl mb-4">Users</h1>
-            <AgGridTable
+            {/* <AgGridTable
                 importedData={data}
                 tableName="users"
                 colDefs={colDefs}
@@ -35,7 +35,7 @@ const Users = () => {
                 csvExport={true}
                 colsManage={true}
                 roleNumber={65}
-            />
+            /> */}
         </div>
     );
 };

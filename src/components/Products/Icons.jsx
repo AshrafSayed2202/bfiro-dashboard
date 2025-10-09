@@ -24,7 +24,7 @@ const Icons = () => {
     return (
         <div>
             <h1 className="text-2xl mb-4">Icons</h1>
-            <AgGridTable
+            {/* <AgGridTable
                 importedData={data}
                 tableName="icons"
                 colDefs={colDefs}
@@ -35,7 +35,7 @@ const Icons = () => {
                 csvExport={true}
                 colsManage={true}
                 roleNumber={65}
-            />
+            /> */}
         </div>
     );
 };
