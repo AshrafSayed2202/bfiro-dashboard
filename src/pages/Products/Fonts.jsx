@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import AgGridTable from '../AgGridTable';
+import AgGridTable from '../../components/AgGridTable';
+import Header from '../../components/UI/Header';
 
 const mockData = [
-    { id: 1, name: 'Illustration 1', price: 59, description: 'Description 1' },
+    { id: 1, name: 'Font Family 1', price: 19, description: 'Description 1' },
     // Add more
 ];
 
@@ -13,7 +14,7 @@ const colDefs = [
     { field: 'description', headerName: 'Description' },
 ];
 
-const Illustrations = () => {
+const Fonts = () => {
     const [data, setData] = useState([]);
     const [selectedRows, setSelectedRows] = useState([]);
 
@@ -23,10 +24,10 @@ const Illustrations = () => {
 
     return (
         <div>
-            <h1 className="text-2xl mb-4">Illustrations</h1>
+            <Header title="Fonts" />
             {/* <AgGridTable
                 importedData={data}
-                tableName="illustrations"
+                tableName="fonts"
                 colDefs={colDefs}
                 selectible={true}
                 selectedRows={selectedRows}
@@ -40,4 +41,4 @@ const Illustrations = () => {
     );
 };
 
-export default Illustrations;
+export default Fonts;

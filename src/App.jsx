@@ -3,15 +3,15 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import PasswordReset from './pages/PasswordReset';
 import DashboardLayout from './components/DashboardLayout';
-import DashboardHome from './components/DashboardHome';
-import UIKits from './components/Products/UIKits';
-import Code from './components/Products/Code';
-import Icons from './components/Products/Icons';
-import Illustrations from './components/Products/Illustrations';
-import Fonts from './components/Products/Fonts';
-import Users from './components/Users';
+import DashboardHome from './pages/DashboardHome';
+import UIKits from './pages/Products/UIKits';
+import Code from './pages/Products/Code';
+import Icons from './pages/Products/Icons';
+import Illustrations from './pages/Products/Illustrations';
+import Fonts from './pages/Products/Fonts';
+import Users from './pages/Users';
 import EmptyPlaceholder from './components/EmptyPlaceholder';
-
+import './assets/styles/main.css'
 function App() {
   return (
     <BrowserRouter>

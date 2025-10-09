@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import AgGridTable from '../AgGridTable';
+import AgGridTable from '../../components/AgGridTable';
+import Header from '../../components/UI/Header';
 
 const mockData = [
     { id: 1, name: 'Icon Set 1', price: 29, description: 'Description 1' },
@@ -23,7 +24,7 @@ const Icons = () => {
 
     return (
         <div>
-            <h1 className="text-2xl mb-4">Icons</h1>
+            <Header title="Icons" />
             {/* <AgGridTable
                 importedData={data}
                 tableName="icons"

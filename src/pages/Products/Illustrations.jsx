@@ -1,19 +1,21 @@
 import { useState, useEffect } from 'react';
-import AgGridTable from './AgGridTable';
+import AgGridTable from '../../components/AgGridTable';
+import Header from '../../components/UI/Header';
+
 
 const mockData = [
-    { id: 1, name: 'User 1', email: 'user1@example.com', role: 'Admin' },
+    { id: 1, name: 'Illustration 1', price: 59, description: 'Description 1' },
     // Add more
 ];
 
 const colDefs = [
     { field: 'id', headerName: 'ID' },
     { field: 'name', headerName: 'Name' },
-    { field: 'email', headerName: 'Email' },
-    { field: 'role', headerName: 'Role' },
+    { field: 'price', headerName: 'Price' },
+    { field: 'description', headerName: 'Description' },
 ];
 
-const Users = () => {
+const Illustrations = () => {
     const [data, setData] = useState([]);
     const [selectedRows, setSelectedRows] = useState([]);
 
@@ -23,10 +25,10 @@ const Users = () => {
 
     return (
         <div>
-            <h1 className="text-2xl mb-4">Users</h1>
+            <Header title="Illustrations" />
             {/* <AgGridTable
                 importedData={data}
-                tableName="users"
+                tableName="illustrations"
                 colDefs={colDefs}
                 selectible={true}
                 selectedRows={selectedRows}
@@ -40,4 +42,4 @@ const Users = () => {
     );
 };
 
-export default Users;
+export default Illustrations;

@@ -1,33 +1,33 @@
 import { useState, useEffect } from 'react';
-import AgGridTable from '../AgGridTable';
+import AgGridTable from '../components/AgGridTable';
+import Header from '../components/UI/Header';
 
 const mockData = [
-    { id: 1, name: 'UI Kit 1', price: 99, description: 'Description 1' },
-    // Add more mock rows
+    { id: 1, name: 'User 1', email: 'user1@example.com', role: 'Admin' },
+    // Add more
 ];
 
 const colDefs = [
     { field: 'id', headerName: 'ID' },
     { field: 'name', headerName: 'Name' },
-    { field: 'price', headerName: 'Price' },
-    { field: 'description', headerName: 'Description' },
+    { field: 'email', headerName: 'Email' },
+    { field: 'role', headerName: 'Role' },
 ];
 
-const UIKits = () => {
+const Users = () => {
     const [data, setData] = useState([]);
     const [selectedRows, setSelectedRows] = useState([]);
 
     useEffect(() => {
-        // Placeholder fetch: const response = await fetch('/api/ui-kits'); setData(response.data);
         setData(mockData);
     }, []);
 
     return (
         <div>
-            <h1 className="text-2xl mb-4">UI Kits</h1>
+            <Header title="Users" />
             {/* <AgGridTable
                 importedData={data}
-                tableName="uiKits"
+                tableName="users"
                 colDefs={colDefs}
                 selectible={true}
                 selectedRows={selectedRows}
@@ -35,11 +35,10 @@ const UIKits = () => {
                 pdfExport={true}
                 csvExport={true}
                 colsManage={true}
-                roleNumber={65} // Admin role
-            // reloadEndpoint="/api/ui-kits" // Uncomment for real endpoint
+                roleNumber={65}
             /> */}
         </div>
     );
 };
 
-export default UIKits;
+export default Users;
