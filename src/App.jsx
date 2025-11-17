@@ -4,14 +4,19 @@ import Signup from './pages/Signup';
 import PasswordReset from './pages/PasswordReset';
 import DashboardLayout from './components/DashboardLayout';
 import DashboardHome from './pages/DashboardHome';
-import UIKits from './pages/Products/UIKits';
-import Code from './pages/Products/Code';
-import Icons from './pages/Products/Icons';
-import Illustrations from './pages/Products/Illustrations';
-import Fonts from './pages/Products/Fonts';
+import UIKits from './pages/Products/UIKits/UIKits';
+import CreateUIKits from './pages/Products/UIKits/CreateUIKits';
+import Code from './pages/Products/Code/Code';
+import Icons from './pages/Products/Icons/Icons';
+import Illustrations from './pages/Products/Illustrations/Illustrations';
+import Fonts from './pages/Products/Fonts/Fonts';
 import Users from './pages/Users';
 import EmptyPlaceholder from './components/EmptyPlaceholder';
 import './assets/styles/main.css'
+import CreateCode from './pages/Products/Code/CreateCode';
+import CreateIllustrations from './pages/Products/Illustrations/CreateIllustrations';
+import CreateIcons from './pages/Products/Icons/CreateIcons';
+import CreateFonts from './pages/Products/Fonts/CreateFonts';
 function App() {
   return (
     <BrowserRouter>
@@ -22,10 +27,20 @@ function App() {
         <Route path="/" element={<DashboardLayout />}>
           <Route index element={<DashboardHome />} />
           <Route path="ui-kits" element={<UIKits />} />
+          <Route path="ui-kits/:id" element={<UIKits />} />
+          <Route path="ui-kits/new" element={<CreateUIKits />} />
           <Route path="code" element={<Code />} />
-          <Route path="icons" element={<Icons />} />
+          <Route path="code/:id" element={<Code />} />
+          <Route path="code/new" element={<CreateCode />} />
           <Route path="illustrations" element={<Illustrations />} />
+          <Route path="illustrations/:id" element={<Illustrations />} />
+          <Route path="illustrations/new" element={<CreateIllustrations />} />
+          <Route path="icons" element={<Icons />} />
+          <Route path="icons/:id" element={<Icons />} />
+          <Route path="icons/new" element={<CreateIcons />} />
           <Route path="fonts" element={<Fonts />} />
+          <Route path="fonts/:id" element={<Fonts />} />
+          <Route path="fonts/new" element={<CreateFonts />} />
           <Route path="pricing" element={<EmptyPlaceholder title="Pricing" />} />
           <Route path="contact-us" element={<EmptyPlaceholder title="Contact Us" />} />
           <Route path="ux-camp/pricing" element={<EmptyPlaceholder title="UX Camp Pricing" />} />
