@@ -17,6 +17,7 @@ import CreateCode from './pages/Products/Code/CreateCode';
 import CreateIllustrations from './pages/Products/Illustrations/CreateIllustrations';
 import CreateIcons from './pages/Products/Icons/CreateIcons';
 import CreateFonts from './pages/Products/Fonts/CreateFonts';
+import EditUIKits from './pages/Products/UIKits/EditUIKits';
 function App() {
   return (
     <BrowserRouter>
@@ -27,7 +28,7 @@ function App() {
         <Route path="/" element={<DashboardLayout />}>
           <Route index element={<DashboardHome />} />
           <Route path="ui-kits" element={<UIKits />} />
-          <Route path="ui-kits/:id" element={<UIKits />} />
+          <Route path="ui-kits/:id" element={<EditUIKits />} />
           <Route path="ui-kits/new" element={<CreateUIKits />} />
           <Route path="code" element={<Code />} />
           <Route path="code/:id" element={<Code />} />
