@@ -18,6 +18,10 @@ import CreateIllustrations from './pages/Products/Illustrations/CreateIllustrati
 import CreateIcons from './pages/Products/Icons/CreateIcons';
 import CreateFonts from './pages/Products/Fonts/CreateFonts';
 import EditUIKits from './pages/Products/UIKits/EditUIKits';
+import EditIllustrations from './pages/Products/Illustrations/EditIllustrations';
+import EditIcons from './pages/Products/Icons/EditIcons';
+import EditFonts from './pages/Products/Fonts/EditFonts';
+import EditCodes from './pages/Products/Code/EditCodes';
 function App() {
   return (
     <BrowserRouter>
@@ -31,16 +35,16 @@ function App() {
           <Route path="ui-kits/:id" element={<EditUIKits />} />
           <Route path="ui-kits/new" element={<CreateUIKits />} />
           <Route path="code" element={<Code />} />
-          <Route path="code/:id" element={<Code />} />
+          <Route path="code/:id" element={<EditCodes />} />
           <Route path="code/new" element={<CreateCode />} />
           <Route path="illustrations" element={<Illustrations />} />
-          <Route path="illustrations/:id" element={<Illustrations />} />
+          <Route path="illustrations/:id" element={<EditIllustrations />} />
           <Route path="illustrations/new" element={<CreateIllustrations />} />
           <Route path="icons" element={<Icons />} />
-          <Route path="icons/:id" element={<Icons />} />
+          <Route path="icons/:id" element={<EditIcons />} />
           <Route path="icons/new" element={<CreateIcons />} />
           <Route path="fonts" element={<Fonts />} />
-          <Route path="fonts/:id" element={<Fonts />} />
+          <Route path="fonts/:id" element={<EditFonts />} />
           <Route path="fonts/new" element={<CreateFonts />} />
           <Route path="pricing" element={<EmptyPlaceholder title="Pricing" />} />
           <Route path="contact-us" element={<EmptyPlaceholder title="Contact Us" />} />

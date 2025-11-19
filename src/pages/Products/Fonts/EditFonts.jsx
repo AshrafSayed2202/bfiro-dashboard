@@ -1,11 +1,10 @@
 /* eslint-disable no-unused-vars */
 
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../../../components/UI/Header';
 
-const EditIllustrations = () => {
+const EditFonts = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [isEditMode, setIsEditMode] = useState(false);
@@ -37,16 +36,16 @@ const EditIllustrations = () => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const mockData = [
-        { id: 1, date: '2023-01-01', name: 'Illustration 1', format: 'PSD', solds: 10, price: 99, status: 'active' },
-        { id: 2, date: '2023-02-15', name: 'Illustration 2', format: 'Figma', solds: 5, price: 149, status: 'inactive' },
-        { id: 3, date: '2023-03-20', name: 'Illustration 3', format: 'Sketch', solds: 20, price: 79, status: 'active' },
-        { id: 4, date: '2023-04-10', name: 'Illustration 4', format: 'XD', solds: 0, price: 199, status: 'active' },
-        { id: 5, date: '2023-05-05', name: 'Illustration 5', format: 'PSD', solds: 15, price: 89, status: 'inactive' },
-        { id: 6, date: '2023-06-18', name: 'Illustration 6', format: 'Figma', solds: 8, price: 129, status: 'active' },
-        { id: 7, date: '2023-07-22', name: 'Illustration 7', format: 'Sketch', solds: 3, price: 99, status: 'active' },
-        { id: 8, date: '2023-08-30', name: 'Illustration 8', format: 'XD', solds: 12, price: 159, status: 'inactive' },
-        { id: 9, date: '2023-09-14', name: 'Illustration 9', format: 'PSD', solds: 7, price: 109, status: 'active' },
-        { id: 10, date: '2023-10-25', name: 'Illustration 10', format: 'Figma', solds: 25, price: 69, status: 'active' },
+        { id: 1, date: '2023-01-01', name: 'Font 1', format: 'PSD', solds: 10, price: 99, status: 'active' },
+        { id: 2, date: '2023-02-15', name: 'Font 2', format: 'Figma', solds: 5, price: 149, status: 'inactive' },
+        { id: 3, date: '2023-03-20', name: 'Font 3', format: 'Sketch', solds: 20, price: 79, status: 'active' },
+        { id: 4, date: '2023-04-10', name: 'Font 4', format: 'XD', solds: 0, price: 199, status: 'active' },
+        { id: 5, date: '2023-05-05', name: 'Font 5', format: 'PSD', solds: 15, price: 89, status: 'inactive' },
+        { id: 6, date: '2023-06-18', name: 'Font 6', format: 'Figma', solds: 8, price: 129, status: 'active' },
+        { id: 7, date: '2023-07-22', name: 'Font 7', format: 'Sketch', solds: 3, price: 99, status: 'active' },
+        { id: 8, date: '2023-08-30', name: 'Font 8', format: 'XD', solds: 12, price: 159, status: 'inactive' },
+        { id: 9, date: '2023-09-14', name: 'Font 9', format: 'PSD', solds: 7, price: 109, status: 'active' },
+        { id: 10, date: '2023-10-25', name: 'Font 10', format: 'Figma', solds: 25, price: 69, status: 'active' },
     ];
 
     useEffect(() => {
@@ -54,18 +53,18 @@ const EditIllustrations = () => {
         const found = mockData.find(d => d.id === itemId);
 
         if (!found) {
-            navigate('/illustrations');
+            navigate('/fonts');
             return;
         }
 
         setTitle(found.name);
-        setSubtitle('Premium Dashboard & WebApp Illustration');
+        setSubtitle('Premium Dashboard & WebApp Font');
         setOverview(`High-quality, fully customizable ${found.name} with 150+ components, responsive layouts, dark/light mode support, and complete source files. Perfect for SaaS, admin panels, and modern web applications.`);
         setPoints(['150+ Components', 'Dark/Light Mode', 'Fully Responsive', 'Figma + Sketch + XD Files', 'Lifetime Updates', 'Premium Support']);
         setFormats(['Figma', 'Sketch', 'Adobe XD', 'Photoshop (PSD)']);
         setPrice(found.price.toString());
         setStatus(found.status);
-        setTags(['illustration', 'dashboard', 'admin', 'template', 'figma', 'responsive']);
+        setTags(['fonts', 'dashboard', 'admin', 'template', 'figma', 'responsive']);
         setDate(found.date);
         setSolds(found.solds);
 
@@ -100,7 +99,7 @@ const EditIllustrations = () => {
     };
 
     const handleSave = () => {
-        alert('Illustration updated successfully!');
+        alert('Font updated successfully!');
         setIsEditMode(false);
     };
 
@@ -110,7 +109,7 @@ const EditIllustrations = () => {
 
     return (
         <div>
-            <Header title={isEditMode ? "Edit Illustration" : "Illustration Details"} />
+            <Header title={isEditMode ? "Edit Font" : "Font Details"} />
 
             <div className="mt-8 bg-[#171718CC] p-8 rounded-[20px] max-w-7xl mx-auto">
                 {/* Stats */}
@@ -140,7 +139,7 @@ const EditIllustrations = () => {
                             onClick={() => setIsEditMode(true)}
                             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition"
                         >
-                            Edit Illustration
+                            Edit Font
                         </button>
                     </div>
                 )}
@@ -266,7 +265,7 @@ const EditIllustrations = () => {
                                     Cancel
                                 </button>
                                 <button onClick={handleSave} className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                                    Save Illustration
+                                    Save Font
                                 </button>
                             </div>
                         </div>
@@ -347,4 +346,4 @@ const EditIllustrations = () => {
         </div>)
 };
 
-export default EditIllustrations;
+export default EditFonts;
