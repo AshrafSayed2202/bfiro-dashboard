@@ -1,8 +1,6 @@
-/* eslint-disable no-unused-vars */
-
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import Header from '../../../components/UI/Header';
 
 const EditIllustrations = () => {
@@ -13,7 +11,7 @@ const EditIllustrations = () => {
     const [title, setTitle] = useState('');
     const [subtitle, setSubtitle] = useState('');
     const [overview, setOverview] = useState('');
-    const [points, setPoints] = useState(['', '', '', '', '', '']);
+    const [points, setPoints] = useState([]);
     const [formats, setFormats] = useState([]);
     const [price, setPrice] = useState('');
     const [status, setStatus] = useState('active');
@@ -34,48 +32,63 @@ const EditIllustrations = () => {
 
     const [date, setDate] = useState('');
     const [solds, setSolds] = useState(0);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    const mockData = [
-        { id: 1, date: '2023-01-01', name: 'Illustration 1', format: 'PSD', solds: 10, price: 99, status: 'active' },
-        { id: 2, date: '2023-02-15', name: 'Illustration 2', format: 'Figma', solds: 5, price: 149, status: 'inactive' },
-        { id: 3, date: '2023-03-20', name: 'Illustration 3', format: 'Sketch', solds: 20, price: 79, status: 'active' },
-        { id: 4, date: '2023-04-10', name: 'Illustration 4', format: 'XD', solds: 0, price: 199, status: 'active' },
-        { id: 5, date: '2023-05-05', name: 'Illustration 5', format: 'PSD', solds: 15, price: 89, status: 'inactive' },
-        { id: 6, date: '2023-06-18', name: 'Illustration 6', format: 'Figma', solds: 8, price: 129, status: 'active' },
-        { id: 7, date: '2023-07-22', name: 'Illustration 7', format: 'Sketch', solds: 3, price: 99, status: 'active' },
-        { id: 8, date: '2023-08-30', name: 'Illustration 8', format: 'XD', solds: 12, price: 159, status: 'inactive' },
-        { id: 9, date: '2023-09-14', name: 'Illustration 9', format: 'PSD', solds: 7, price: 109, status: 'active' },
-        { id: 10, date: '2023-10-25', name: 'Illustration 10', format: 'Figma', solds: 25, price: 69, status: 'active' },
-    ];
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [deleting, setDeleting] = useState(false);
 
     useEffect(() => {
-        const itemId = parseInt(id);
-        const found = mockData.find(d => d.id === itemId);
+        const fetchProduct = async () => {
+            try {
+                setLoading(true);
+                const response = await axios.get(`http://localhost/bfiro_backend/fetch/site/products/getProduct.php?id=${id}`);
+                const result = response.data;
 
-        if (!found) {
-            navigate('/illustrations');
-            return;
-        }
+                if (result.status !== 1 || !result.data) {
+                    navigate('/illustrations');
+                    return;
+                }
 
-        setTitle(found.name);
-        setSubtitle('Premium Dashboard & WebApp Illustration');
-        setOverview(`High-quality, fully customizable ${found.name} with 150+ components, responsive layouts, dark/light mode support, and complete source files. Perfect for SaaS, admin panels, and modern web applications.`);
-        setPoints(['150+ Components', 'Dark/Light Mode', 'Fully Responsive', 'Figma + Sketch + XD Files', 'Lifetime Updates', 'Premium Support']);
-        setFormats(['Figma', 'Sketch', 'Adobe XD', 'Photoshop (PSD)']);
-        setPrice(found.price.toString());
-        setStatus(found.status);
-        setTags(['illustration', 'dashboard', 'admin', 'template', 'figma', 'responsive']);
-        setDate(found.date);
-        setSolds(found.solds);
+                const product = result.data;
 
-        const encodedTitle = encodeURIComponent(found.name);
-        setCurrentThumbnailUrl(`https://placehold.co/356x256/png?text=${encodedTitle}+Thumbnail`);
-        setCurrentCoverUrl(`https://placehold.co/1920x440/png?text=${encodedTitle}+Cover`);
-        setCurrentGalleryUrls(Array.from({ length: 8 }, (_, i) => `https://placehold.co/803x628/png?text=${encodedTitle}+Gallery+${i + 1}`));
-        setCurrentPreviewPhotoUrl(`https://placehold.co/1200x800/png?text=${encodedTitle}+Preview`);
-        setCurrentTemplateFileName(`${found.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}.zip`);
-    }, [id, mockData, navigate]);
+                if (product.type !== 'Illustrations') {
+                    navigate('/illustrations');
+                    return;
+                }
+
+                setTitle(product.title || '');
+                setSubtitle(product.subtitle || '');
+                setOverview(product.overview || '');
+                setPoints(product.highlights ? product.highlights.map(h => h.highlight || '') : []);
+                setFormats(product.formats ? product.formats.map(f => f.text || '') : []);
+
+                const finalPrice = (product.price - (product.discount || 0)) || product.price || 0;
+                setPrice(finalPrice.toString());
+
+                setStatus(product.status || 'active');
+                setTags(product.labels ? product.labels.map(l => l.text || '') : []);
+                setDate(product.releaseDate ? product.releaseDate.split(' ')[0] : '');
+                setSolds(product.solds || 0);
+
+                // Images mapping
+                const images = product.images || [];
+                setCurrentCoverUrl(images.find(img => img.purpose === 'cover')?.url || '');
+                setCurrentGalleryUrls(images.filter(img => img.purpose === 'gallery').map(img => img.url));
+                setCurrentPreviewPhotoUrl(images.find(img => img.purpose === 'preview')?.url || '');
+                setCurrentThumbnailUrl(images.find(img => img.purpose === 'bg')?.url || '');
+
+                // Template file (assuming first file is the main template)
+                const files = product.files || [];
+                setCurrentTemplateFileName(files[0]?.storage_path || '');
+            } catch (error) {
+                console.error('Error fetching product:', error);
+                navigate('/illustrations');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProduct();
+    }, [id, navigate]);
 
     const formatOptions = ['Figma', 'Sketch', 'Adobe XD', 'Photoshop (PSD)', 'Framer', 'Webflow'];
 
@@ -99,14 +112,68 @@ const EditIllustrations = () => {
         setTags(tags.filter((_, i) => i !== index));
     };
 
-    const handleSave = () => {
-        alert('Illustration updated successfully!');
-        setIsEditMode(false);
+    const handleSave = async () => {
+        if (saving) return;
+        setSaving(true);
+
+        try {
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('subtitle', subtitle);
+            formData.append('overview', overview);
+            formData.append('highlights', JSON.stringify(points.filter(p => p.trim())));
+            formData.append('formats', formats.join(','));
+            formData.append('price', price);
+            formData.append('status', status);
+            formData.append('labels', tags.join(',')); // assuming tags are categories/labels
+
+            if (templateFile) formData.append('template_file', templateFile);
+            if (thumbnail) formData.append('thumbnail', thumbnail);
+            if (cover) formData.append('cover', cover);
+            if (previewPhoto) formData.append('preview_photo', previewPhoto);
+            gallery.forEach((file, i) => formData.append(`gallery[${i}]`, file));
+
+            await axios.post(`http://localhost/bfiro_backend/actions/products/updateProduct.php?id=${id}`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+
+            alert('Illustration updated successfully!');
+            setIsEditMode(false);
+            // Optionally refetch data
+            window.location.reload();
+        } catch (error) {
+            console.error('Error updating product:', error);
+            alert('Failed to update Illustration. Please try again.');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleDelete = async () => {
+        if (deleting) return;
+        if (!window.confirm('Are you sure you want to delete this Illustration? This action cannot be undone.')) return;
+
+        setDeleting(true);
+
+        try {
+            await axios.post(`http://localhost/bfiro_backend/actions/products/deleteProduct.php?id=${id}`);
+            alert('Illustration deleted successfully!');
+            navigate('/illustrations');
+        } catch (error) {
+            console.error('Error deleting product:', error);
+            alert('Failed to delete Illustration. Please try again.');
+        } finally {
+            setDeleting(false);
+        }
     };
 
     const totalIncome = solds * (parseFloat(price) || 0);
 
-    if (!title) return <div className="text-white text-center mt-40 text-4xl">Loading...</div>;
+    if (loading) {
+        return <div className="text-white text-center mt-40 text-4xl">Loading...</div>;
+    }
+
+    if (!title) return <div className="text-white text-center mt-40 text-4xl">Product not found</div>;
 
     return (
         <div>
@@ -133,14 +200,21 @@ const EditIllustrations = () => {
                     </div>
                 </div>
 
-                {/* Edit Button (only in view mode) */}
+                {/* Edit and Delete Buttons (only in view mode) */}
                 {!isEditMode && (
-                    <div className="flex justify-end mb-8">
+                    <div className="flex justify-end mb-8 gap-4">
                         <button
                             onClick={() => setIsEditMode(true)}
                             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition"
                         >
                             Edit Illustration
+                        </button>
+                        <button
+                            onClick={handleDelete}
+                            disabled={deleting}
+                            className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition disabled:opacity-50"
+                        >
+                            {deleting ? 'Deleting...' : 'Delete Illustration'}
                         </button>
                     </div>
                 )}
@@ -161,13 +235,13 @@ const EditIllustrations = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div>
                                     <label className="block text-white text-lg mb-3">Thumbnail (356×256)</label>
-                                    <img src={currentThumbnailUrl} alt="current thumbnail" className="mb-4 rounded-lg" />
+                                    {currentThumbnailUrl && <img src={currentThumbnailUrl} alt="current thumbnail" className="mb-4 rounded-lg" />}
                                     <input type="file" accept="image/*" onChange={(e) => setThumbnail(e.target.files[0] || null)} className="block w-full text-sm text-gray-300 file:mr-4 file:py-3 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-600 file:text-white" />
                                     {thumbnail && <img src={URL.createObjectURL(thumbnail)} alt="new thumbnail" className="mt-4 rounded-lg" />}
                                 </div>
                                 <div>
                                     <label className="block text-white text-lg mb-3">Cover Photo (1920×440)</label>
-                                    <img src={currentCoverUrl} alt="current cover" className="mb-4 rounded-lg" />
+                                    {currentCoverUrl && <img src={currentCoverUrl} alt="current cover" className="mb-4 rounded-lg" />}
                                     <input type="file" accept="image/*" onChange={(e) => setCover(e.target.files[0] || null)} className="block w-full text-sm text-gray-300 file:mr-4 file:py-3 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-600 file:text-white" />
                                     {cover && <img src={URL.createObjectURL(cover)} alt="new cover" className="mt-4 rounded-lg" />}
                                 </div>
@@ -187,7 +261,7 @@ const EditIllustrations = () => {
 
                             <div>
                                 <label className="block text-white text-lg mb-3">Preview Photo (max 3MB)</label>
-                                <img src={currentPreviewPhotoUrl} alt="current preview" className="mb-4 rounded-lg max-w-full" />
+                                {currentPreviewPhotoUrl && <img src={currentPreviewPhotoUrl} alt="current preview" className="mb-4 rounded-lg max-w-full" />}
                                 <input type="file" accept="image/*" onChange={(e) => setPreviewPhoto(e.target.files[0] || null)} className="block w-full text-sm text-gray-300 file:mr-4 file:py-3 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-600 file:text-white" />
                                 {previewPhoto && <img src={URL.createObjectURL(previewPhoto)} className="mt-4 rounded-lg max-w-full" />}
                             </div>
@@ -262,11 +336,11 @@ const EditIllustrations = () => {
                             </div>
 
                             <div className="flex gap-4 justify-end pt-8">
-                                <button onClick={() => setIsEditMode(false)} className="px-8 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition">
+                                <button onClick={() => setIsEditMode(false)} disabled={saving} className="px-8 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition disabled:opacity-50">
                                     Cancel
                                 </button>
-                                <button onClick={handleSave} className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                                    Save Illustration
+                                <button onClick={handleSave} disabled={saving} className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50">
+                                    {saving ? 'Saving...' : 'Save Illustration'}
                                 </button>
                             </div>
                         </div>
@@ -274,7 +348,7 @@ const EditIllustrations = () => {
                 ) : (
                     // ==================== VIEW MODE ====================
                     <div>
-                        <img src={currentCoverUrl} alt="Cover" className="w-full h-96 object-cover rounded-[20px] mb-10" />
+                        {currentCoverUrl && <img src={currentCoverUrl} alt="Cover" className="w-full h-96 object-cover rounded-[20px] mb-10" />}
 
                         <h2 className="text-4xl font-bold text-white mb-4">{title}</h2>
                         {subtitle && <p className="text-2xl text-gray-300 mb-8">{subtitle}</p>}
@@ -329,22 +403,23 @@ const EditIllustrations = () => {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
                             <div>
                                 <h3 className="text-2xl font-semibold text-white mb-4">Thumbnail</h3>
-                                <img src={currentThumbnailUrl} alt="Thumbnail" className="rounded-lg w-full" />
+                                {currentThumbnailUrl && <img src={currentThumbnailUrl} alt="Thumbnail" className="rounded-lg w-full" />}
                             </div>
                             <div>
                                 <h3 className="text-2xl font-semibold text-white mb-4">Preview Photo</h3>
-                                <img src={currentPreviewPhotoUrl} alt="Preview" className="rounded-lg w-full" />
+                                {currentPreviewPhotoUrl && <img src={currentPreviewPhotoUrl} alt="Preview" className="rounded-lg w-full" />}
                             </div>
                         </div>
 
                         <div>
                             <h3 className="text-2xl font-semibold text-white mb-4">Download</h3>
-                            <a href="#" className="text-blue-500 hover:underline text-xl">{currentTemplateFileName}</a>
+                            {currentTemplateFileName && <a href="#" className="text-blue-500 hover:underline text-xl">{currentTemplateFileName}</a>}
                         </div>
                     </div>
                 )}
             </div>
-        </div>)
+        </div>
+    );
 };
 
 export default EditIllustrations;

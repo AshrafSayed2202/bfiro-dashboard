@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import Header from '../../../components/UI/Header';
 
 const CreateIllustrations = () => {
@@ -20,6 +21,8 @@ const CreateIllustrations = () => {
     const [cover, setCover] = useState(null);
     const [gallery, setGallery] = useState([]);
     const [previewPhoto, setPreviewPhoto] = useState(null);
+
+    const [saving, setSaving] = useState(false);
 
     const formatOptions = ['SVG', 'PNG', 'AI', 'EPS', 'JPG', 'PDF'];
 
@@ -43,18 +46,43 @@ const CreateIllustrations = () => {
         setTags(tags.filter((_, i) => i !== index));
     };
 
-    const handleSave = () => {
-        // In real app you would send FormData to API
-        console.log({
-            title, subtitle, overview, points, formats, price, status, tags,
-            templateFile: templateFile?.name,
-            thumbnail: thumbnail?.name,
-            cover: cover?.name,
-            gallery: gallery.map(f => f.name),
-            previewPhoto: previewPhoto?.name
-        });
-        alert('Illustration created successfully!');
-        navigate('/illustrations');
+    const handleSave = async () => {
+        if (saving || !title.trim()) {
+            alert('Title is required.');
+            return;
+        }
+        setSaving(true);
+
+        try {
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('subtitle', subtitle);
+            formData.append('overview', overview);
+            formData.append('highlights', JSON.stringify(points.filter(p => p.trim())));
+            formData.append('formats', formats.join(','));
+            formData.append('price', price);
+            formData.append('status', status);
+            formData.append('labels', tags.join(','));
+            formData.append('type', 'Illustrations'); // Fixed type
+
+            if (templateFile) formData.append('template_file', templateFile);
+            if (thumbnail) formData.append('thumbnail', thumbnail);
+            if (cover) formData.append('cover', cover);
+            if (previewPhoto) formData.append('preview_photo', previewPhoto);
+            gallery.forEach((file, i) => formData.append(`gallery[${i}]`, file));
+
+            await axios.post('http://localhost/bfiro_backend/actions/products/createProduct.php', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+
+            alert('Illustration created successfully!');
+            navigate('/illustrations');
+        } catch (error) {
+            console.error('Error creating product:', error);
+            alert('Failed to create Illustration. Please try again.');
+        } finally {
+            setSaving(false);
+        }
     };
 
     return (
@@ -233,7 +261,7 @@ const CreateIllustrations = () => {
                     />
                     <div className="flex flex-wrap gap-3 mt-4">
                         {tags.map((tag, i) => (
-                            <span key={i} className="bg-blue-600 text-white px-4 py-rounded-full flex items-center gap-2 text-sm">
+                            <span key={i} className="bg-blue-600 text-white px-4 py-1 rounded-full flex items-center gap-2 text-sm">
                                 {tag}
                                 <button
                                     type="button"
@@ -248,15 +276,17 @@ const CreateIllustrations = () => {
                 <div className="flex gap-4 justify-end">
                     <button
                         onClick={() => navigate('/illustrations')}
-                        className="px-8 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition"
+                        disabled={saving}
+                        className="px-8 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition disabled:opacity-50"
                     >
                         Cancel
                     </button>
                     <button
                         onClick={handleSave}
-                        className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                        disabled={saving}
+                        className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
                     >
-                        Save Illustration
+                        {saving ? 'Saving...' : 'Save Illustration'}
                     </button>
                 </div>
             </div>

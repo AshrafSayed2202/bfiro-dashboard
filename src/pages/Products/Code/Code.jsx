@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import AgGridTable from '../../../components/AgGridTable';
 import Header from '../../../components/UI/Header';
 
@@ -14,48 +15,76 @@ const Code = () => {
         soldFrom: 0,
         income: 0
     });
+    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const mockData = [
-            { id: 1, date: '2023-01-12', name: 'Admin Dashboard Template', format: 'React', solds: 37, price: 99, status: 'active' },
-            { id: 2, date: '2023-02-25', name: 'E-commerce Frontend', format: 'Next.js', solds: 18, price: 129, status: 'active' },
-            { id: 3, date: '2023-04-08', name: 'Landing Page Kit', format: 'HTML/CSS', solds: 29, price: 79, status: 'active' },
-            { id: 4, date: '2023-05-20', name: 'Auth System + UI', format: 'Vue', solds: 0, price: 149, status: 'inactive' },
-            { id: 5, date: '2023-06-30', name: 'SaaS Dashboard', format: 'React + Tailwind', solds: 22, price: 119, status: 'active' },
-            { id: 6, date: '2023-08-15', name: 'Mobile App UI Code', format: 'React Native', solds: 11, price: 199, status: 'active' },
-            { id: 7, date: '2023-09-28', name: 'Portfolio Template', format: 'HTML/CSS/JS', solds: 8, price: 59, status: 'inactive' },
-            { id: 8, date: '2023-11-10', name: 'Blog Theme', format: 'Next.js', solds: 14, price: 89, status: 'active' },
-            { id: 9, date: '2023-12-20', name: 'Crypto Dashboard', format: 'React', solds: 5, price: 159, status: 'inactive' },
-            { id: 10, date: '2024-02-10', name: 'Full Stack Starter', format: 'Next.js + Supabase', solds: 41, price: 199, status: 'active' },
-        ];
-        setData(mockData);
-
-        const total = mockData.length;
-        const active = mockData.filter(d => d.status === 'active').length;
-        const inactive = total - active;
-        const sold = mockData.reduce((sum, d) => sum + d.solds, 0);
-        const soldFrom = mockData.filter(d => d.solds > 0).length;
-        const income = mockData.reduce((sum, d) => sum + (d.solds * d.price), 0);
-
-        setStats({ total, active, inactive, sold, soldFrom, income });
+        fetchCodeTemplates();
     }, []);
+
+    const fetchCodeTemplates = async () => {
+        try {
+            setLoading(true);
+            const response = await axios.get('http://localhost/bfiro_backend/fetch/site/products/getProducts.php');
+            const codeTemplates = response.data.data || response.data;
+
+            const transformedData = codeTemplates.map(item => ({
+                id: item.id,
+                date: item.created_date.split(' ')[0],
+                name: item.title,
+                format: item.formats || 'React, Next.js, Vue',
+                solds: item.sales_count || 0,
+                price: item.final_price || item.price,
+                status: item.status,
+            }));
+
+            setData(transformedData);
+
+            const total = transformedData.length;
+            const active = transformedData.filter(d => d.status === 'active').length;
+            const inactive = total - active;
+            const sold = transformedData.reduce((sum, d) => sum + d.solds, 0);
+            const soldFrom = transformedData.filter(d => d.solds > 0).length;
+            const income = transformedData.reduce((sum, d) => sum + (d.solds * d.price), 0);
+
+            setStats({ total, active, inactive, sold, soldFrom, income });
+        } catch (error) {
+            console.error('Error fetching Coded Templates:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const colDefs = [
         { headerName: '', checkboxSelection: true, headerCheckboxSelection: true, width: 50 },
-        { field: 'id', headerName: 'ID' },
-        { field: 'date', headerName: 'Date' },
-        { field: 'name', headerName: 'Name' },
-        { field: 'format', headerName: 'Framework' }, // changed to Framework for code section
-        { field: 'solds', headerName: 'Solds Number' },
-        { field: 'price', headerName: 'Price' },
+        { field: 'id', headerName: 'ID', width: 80 },
+        { field: 'date', headerName: 'Date', width: 120 },
+        { field: 'name', headerName: 'Name', flex: 1 },
+        { field: 'format', headerName: 'Framework', width: 130 },
+        { field: 'solds', headerName: 'Solds Number', width: 130 },
+        { field: 'price', headerName: 'Price', width: 110, valueFormatter: params => `$${params.value}` },
         {
             headerName: 'Total Income',
             valueGetter: (params) => params.data.solds * params.data.price,
+            valueFormatter: params => `$${params.value.toFixed(2)}`,
+            width: 140,
         },
-        { field: 'status', headerName: 'Status' },
+        {
+            field: 'status',
+            headerName: 'Status',
+            width: 110,
+            cellRenderer: (params) => (
+                <span className={`px-3 py-1 rounded-full text-xs font-medium ${params.value === 'active'
+                    ? 'bg-green-900 text-green-300'
+                    : 'bg-gray-700 text-gray-300'
+                    }`}>
+                    {params.value}
+                </span>
+            )
+        },
         {
             headerName: 'Activities',
+            width: 100,
             cellRenderer: (params) => (
                 <span
                     className="text-blue-500 cursor-pointer hover:underline"
@@ -67,40 +96,48 @@ const Code = () => {
         },
     ];
 
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-96">
+                <div className="text-white text-xl">Loading Coded Templates...</div>
+            </div>
+        );
+    }
+
     return (
         <div>
             <Header title="Code" />
-            <div className="mt-6 flex justify-between space-x-6">
-                <div className="bg-[#171718CC] p-5 rounded-[20px] flex-1 text-center">
+            <div className="mt-6 flex flex-wrap gap-6">
+                <div className="bg-[#171718CC] p-5 rounded-[20px] flex-1 min-w-[200px] text-center">
                     <p className="text-xl text-white">Total Code Snippets</p>
                     <p className="text-4xl font-bold text-white mt-2">{stats.total}</p>
                 </div>
-                <div className="bg-[#171718CC] p-5 rounded-[20px] flex-1 text-center">
+                <div className="bg-[#171718CC] p-5 rounded-[20px] flex-1 min-w-[200px] text-center">
                     <p className="text-xl text-white">Active Code Snippets</p>
                     <p className="text-4xl font-bold text-white mt-2">{stats.active}</p>
                     <p className="text-sm text-gray-400 mt-1">Inactive: {stats.inactive}</p>
                 </div>
-                <div className="bg-[#171718CC] p-5 rounded-[20px] flex-1 text-center">
+                <div className="bg-[#171718CC] p-5 rounded-[20px] flex-1 min-w-[200px] text-center">
                     <p className="text-xl text-white">Total Sold Items</p>
                     <p className="text-4xl font-bold text-white mt-2">{stats.sold}</p>
                     <p className="text-sm text-gray-400 mt-1">From {stats.soldFrom} code snippets</p>
                 </div>
-                <div className="bg-[#171718CC] p-5 rounded-[20px] flex-1 text-center">
+                <div className="bg-[#171718CC] p-5 rounded-[20px] flex-1 min-w-[200px] text-center">
                     <p className="text-xl text-white">Total Income</p>
-                    <p className="text-4xl font-bold text-white mt-2">${stats.income}</p>
+                    <p className="text-4xl font-bold text-white mt-2">${stats.income.toFixed(2)}</p>
                 </div>
             </div>
 
             <div className="mt-6 flex justify-start">
                 <button
                     onClick={() => navigate('/code/new')}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition duration-200"
                 >
                     Create New Code Snippet
                 </button>
             </div>
 
-            <div className='mt-6 bg-[#171718CC] p-4 rounded-[20px]'>
+            <div className="mt-6 bg-[#171718CC] p-4 rounded-[20px]">
                 <div className="h-[450px]">
                     <AgGridTable
                         importedData={data}
@@ -120,4 +157,4 @@ const Code = () => {
     );
 };
 
-export default Code; // changed component name to Code for clarity
+export default Code;

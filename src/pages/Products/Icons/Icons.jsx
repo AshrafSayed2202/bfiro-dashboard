@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import AgGridTable from '../../../components/AgGridTable';
 import Header from '../../../components/UI/Header';
 
@@ -14,48 +15,76 @@ const Icons = () => {
         soldFrom: 0,
         income: 0
     });
+    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const mockData = [
-            { id: 1, date: '2023-01-05', name: 'Line Icons Pro', format: 'SVG', solds: 44, price: 29, status: 'active' },
-            { id: 2, date: '2023-02-10', name: 'Filled Icons Set', format: 'SVG', solds: 12, price: 39, status: 'active' },
-            { id: 3, date: '2023-03-22', name: 'Duotone Icons', format: 'React', solds: 28, price: 49, status: 'active' },
-            { id: 4, date: '2023-04-18', name: '3D Icons Pack', format: 'PNG', solds: 0, price: 59, status: 'inactive' },
-            { id: 5, date: '2023-05-30', name: 'Business Icons', format: 'SVG', solds: 19, price: 35, status: 'active' },
-            { id: 6, date: '2023-07-14', name: 'Medical Icons', format: 'SVG', solds: 7, price: 45, status: 'inactive' },
-            { id: 7, date: '2023-08-25', name: 'Weather Icons', format: 'Font', solds: 15, price: 25, status: 'active' },
-            { id: 8, date: '2023-10-10', name: 'E-commerce Icons', format: 'SVG', solds: 31, price: 39, status: 'active' },
-            { id: 9, date: '2023-11-05', name: 'Social Media Icons', format: 'PNG', solds: 9, price: 19, status: 'inactive' },
-            { id: 10, date: '2024-01-15', name: 'Crypto & Finance Icons', format: 'SVG', solds: 52, price: 55, status: 'active' },
-        ];
-        setData(mockData);
-
-        const total = mockData.length;
-        const active = mockData.filter(d => d.status === 'active').length;
-        const inactive = total - active;
-        const sold = mockData.reduce((sum, d) => sum + d.solds, 0);
-        const soldFrom = mockData.filter(d => d.solds > 0).length;
-        const income = mockData.reduce((sum, d) => sum + (d.solds * d.price), 0);
-
-        setStats({ total, active, inactive, sold, soldFrom, income });
+        fetchIcons();
     }, []);
+
+    const fetchIcons = async () => {
+        try {
+            setLoading(true);
+            const response = await axios.get('http://localhost/bfiro_backend/fetch/site/products/getProducts.php');
+            const icons = response.data.data || response.data;
+
+            const transformedData = icons.map(item => ({
+                id: item.id,
+                date: item.created_date.split(' ')[0],
+                name: item.title,
+                format: item.formats || 'SVG, PNG',
+                solds: item.sales_count || 0,
+                price: item.final_price || item.price,
+                status: item.status,
+            }));
+
+            setData(transformedData);
+
+            const total = transformedData.length;
+            const active = transformedData.filter(d => d.status === 'active').length;
+            const inactive = total - active;
+            const sold = transformedData.reduce((sum, d) => sum + d.solds, 0);
+            const soldFrom = transformedData.filter(d => d.solds > 0).length;
+            const income = transformedData.reduce((sum, d) => sum + (d.solds * d.price), 0);
+
+            setStats({ total, active, inactive, sold, soldFrom, income });
+        } catch (error) {
+            console.error('Error fetching Icons:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const colDefs = [
         { headerName: '', checkboxSelection: true, headerCheckboxSelection: true, width: 50 },
-        { field: 'id', headerName: 'ID' },
-        { field: 'date', headerName: 'Date' },
-        { field: 'name', headerName: 'Name' },
-        { field: 'format', headerName: 'Format' },
-        { field: 'solds', headerName: 'Solds Number' },
-        { field: 'price', headerName: 'Price' },
+        { field: 'id', headerName: 'ID', width: 80 },
+        { field: 'date', headerName: 'Date', width: 120 },
+        { field: 'name', headerName: 'Name', flex: 1 },
+        { field: 'format', headerName: 'Format', width: 130 },
+        { field: 'solds', headerName: 'Solds Number', width: 130 },
+        { field: 'price', headerName: 'Price', width: 110, valueFormatter: params => `$${params.value}` },
         {
             headerName: 'Total Income',
             valueGetter: (params) => params.data.solds * params.data.price,
+            valueFormatter: params => `$${params.value.toFixed(2)}`,
+            width: 140,
         },
-        { field: 'status', headerName: 'Status' },
+        {
+            field: 'status',
+            headerName: 'Status',
+            width: 110,
+            cellRenderer: (params) => (
+                <span className={`px-3 py-1 rounded-full text-xs font-medium ${params.value === 'active'
+                    ? 'bg-green-900 text-green-300'
+                    : 'bg-gray-700 text-gray-300'
+                    }`}>
+                    {params.value}
+                </span>
+            )
+        },
         {
             headerName: 'Activities',
+            width: 100,
             cellRenderer: (params) => (
                 <span
                     className="text-blue-500 cursor-pointer hover:underline"
@@ -67,40 +96,48 @@ const Icons = () => {
         },
     ];
 
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-96">
+                <div className="text-white text-xl">Loading Icons...</div>
+            </div>
+        );
+    }
+
     return (
         <div>
             <Header title="Icons" />
-            <div className="mt-6 flex justify-between space-x-6">
-                <div className="bg-[#171718CC] p-5 rounded-[20px] flex-1 text-center">
+            <div className="mt-6 flex flex-wrap gap-6">
+                <div className="bg-[#171718CC] p-5 rounded-[20px] flex-1 min-w-[200px] text-center">
                     <p className="text-xl text-white">Total Icon Sets</p>
                     <p className="text-4xl font-bold text-white mt-2">{stats.total}</p>
                 </div>
-                <div className="bg-[#171718CC] p-5 rounded-[20px] flex-1 text-center">
+                <div className="bg-[#171718CC] p-5 rounded-[20px] flex-1 min-w-[200px] text-center">
                     <p className="text-xl text-white">Active Icon Sets</p>
                     <p className="text-4xl font-bold text-white mt-2">{stats.active}</p>
                     <p className="text-sm text-gray-400 mt-1">Inactive: {stats.inactive}</p>
                 </div>
-                <div className="bg-[#171718CC] p-5 rounded-[20px] flex-1 text-center">
+                <div className="bg-[#171718CC] p-5 rounded-[20px] flex-1 min-w-[200px] text-center">
                     <p className="text-xl text-white">Total Sold Items</p>
                     <p className="text-4xl font-bold text-white mt-2">{stats.sold}</p>
                     <p className="text-sm text-gray-400 mt-1">From {stats.soldFrom} icon sets</p>
                 </div>
-                <div className="bg-[#171718CC] p-5 rounded-[20px] flex-1 text-center">
+                <div className="bg-[#171718CC] p-5 rounded-[20px] flex-1 min-w-[200px] text-center">
                     <p className="text-xl text-white">Total Income</p>
-                    <p className="text-4xl font-bold text-white mt-2">${stats.income}</p>
+                    <p className="text-4xl font-bold text-white mt-2">${stats.income.toFixed(2)}</p>
                 </div>
             </div>
 
             <div className="mt-6 flex justify-start">
                 <button
                     onClick={() => navigate('/icons/new')}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition duration-200"
                 >
                     Create New Icon Set
                 </button>
             </div>
 
-            <div className='mt-6 bg-[#171718CC] p-4 rounded-[20px]'>
+            <div className="mt-6 bg-[#171718CC] p-4 rounded-[20px]">
                 <div className="h-[450px]">
                     <AgGridTable
                         importedData={data}
