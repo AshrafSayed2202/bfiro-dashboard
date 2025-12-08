@@ -19,11 +19,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { camelCaseToTitleCase } from "../utils/camelCaseToTitleCase";
-import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community';
-ModuleRegistry.registerModules([AllCommunityModule]);
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-quartz.css';
+import { ModuleRegistry, AllCommunityModule, themeQuartz } from 'ag-grid-community';
 import { HiSearch } from "react-icons/hi";
+ModuleRegistry.registerModules([AllCommunityModule]);
 
 const AgGridTable = ({
     className,
@@ -33,15 +31,28 @@ const AgGridTable = ({
     colsManage,
     handleContextMenu,
     selectedRows,
-    setSelectedRows,
     onRowClicked,
-    selectible,
     colDefs,
     searchFromUrl = true,
     progress,
     listMouses = null,
     pageSize = 25,
 }) => {
+    const myTheme = themeQuartz.withParams({
+        gridSize: 155,
+        accentColor: '#ccc',
+        backgroundColor: '#262626',
+        foregroundColor: '#ccc',
+        headerTextColor: '#fff',
+        headerBackgroundColor: '#121212',
+        oddRowBackgroundColor: '#222222',
+        headerColumnResizeHandleColor: '#1fccff',
+        rowHeight: 48,
+        headerHeight: 48,
+    });
+
+    const theme = myTheme;
+
     const gridRef = useRef();
     const { search } = useLocation();
     const searchParams = new URLSearchParams(search);
@@ -60,104 +71,8 @@ const AgGridTable = ({
         setProgressPercentage(Math.min(Math.max(Math.round(progress), 0), 100));
     }, [progress]);
 
-    const CustomHeaderComp = (props) => {
-        const api = props.api;
-        const checkboxRef = useRef(null);
-
-        useEffect(() => {
-            const updateCheckboxState = () => {
-                if (!checkboxRef.current || !api) return;
-
-                const nodes = [];
-                api.forEachNode((node) => nodes.push(node));
-                const displayedNodes = nodes.filter((node) => node.displayed);
-
-                if (!displayedNodes.length) {
-                    checkboxRef.current.checked = false;
-                    checkboxRef.current.indeterminate = false;
-                    return;
-                }
-
-                const currentPage = api.paginationGetCurrentPage();
-                const pageSize = api.paginationGetPageSize();
-                const startRow = currentPage * pageSize;
-                const endRow = Math.min(startRow + pageSize, displayedNodes.length);
-                const allOnPage = displayedNodes.slice(startRow, endRow);
-
-                const numOnPage = allOnPage.length;
-                const numSelected = allOnPage.filter((node) => node.isSelected()).length;
-
-                if (numSelected === 0) {
-                    checkboxRef.current.checked = false;
-                    checkboxRef.current.indeterminate = false;
-                } else if (numSelected === numOnPage) {
-                    checkboxRef.current.checked = true;
-                    checkboxRef.current.indeterminate = false;
-                } else {
-                    checkboxRef.current.checked = false;
-                    checkboxRef.current.indeterminate = true;
-                }
-            };
-
-            if (api) {
-                api.addEventListener("selectionChanged", updateCheckboxState);
-                api.addEventListener("paginationChanged", updateCheckboxState);
-                api.addEventListener("filterChanged", updateCheckboxState);
-                api.addEventListener("modelUpdated", updateCheckboxState);
-
-                updateCheckboxState(); // Initial update
-
-                return () => {
-                    api.removeEventListener("selectionChanged", updateCheckboxState);
-                    api.removeEventListener("paginationChanged", updateCheckboxState);
-                    api.removeEventListener("filterChanged", updateCheckboxState);
-                    api.removeEventListener("modelUpdated", updateCheckboxState);
-                };
-            }
-        }, [api]);
-
-        const onCheckboxChange = (e) => {
-            if (!api) return;
-            const checked = e.target.checked;
-            const currentPage = api.paginationGetCurrentPage();
-            const pageSize = api.paginationGetPageSize();
-            const nodes = [];
-            api.forEachNode((node) => nodes.push(node));
-            const displayedNodes = nodes.filter((node) => node.displayed);
-            const startRow = currentPage * pageSize;
-            const endRow = Math.min(startRow + pageSize, displayedNodes.length);
-            const allOnPage = displayedNodes.slice(startRow, endRow);
-
-            allOnPage.forEach((node) => {
-                node.setSelected(checked);
-            });
-        };
-
-        return (
-            <input type="checkbox" ref={checkboxRef} onChange={onCheckboxChange} />
-        );
-    };
-
-    const checksCol = () => {
-        if (selectible) {
-            return {
-                colId: "checkbox",
-                headerComponent: CustomHeaderComp,
-                checkboxSelection: true,
-                maxWidth: 50,
-                lockPosition: true,
-                pinned: "left",
-                sortable: false,
-                filter: false,
-                resizable: false,
-            };
-        }
-        return null;
-    };
-
     const [myColsDef] = useState([
         ...colDefs,
-        ...(selectible ? [checksCol()] : []),
     ]);
 
     const noResultState = `<span class='noResult text-[#111] dark:text-[#eee]'>No ${camelCaseToTitleCase(
@@ -362,7 +277,7 @@ const AgGridTable = ({
 
     return (
         <div
-            className={`overflow-y-visible slideup-in h-full xs:h-[calc(100vh-280px)] w-full delay-[0.15s] rounded-md ${className}`}
+            className={`overflow-y-visible slideup-in h-full xs:h-[calc(100vh-280px)] max-h-[calc(100%-125px)] w-full delay-[0.15s] rounded-md ${className}`}
             onContextMenu={handleContextMenu}
             onDoubleClick={(e) => {
                 if (window.innerWidth < 500) {
@@ -472,8 +387,8 @@ const AgGridTable = ({
             <AgGridReact
                 onGridReady={onGridReady}
                 overlayNoRowsTemplate={isLoading ? loadingState : noResultState}
-                className="ag-theme-quartz custom-table !h-[90%]"
                 rowData={rowData}
+                theme={theme}
                 columnDefs={myColsDef}
                 defaultColDef={defaultColDef}
                 pagination={true}
@@ -487,29 +402,11 @@ const AgGridTable = ({
                 rowDragManaged={false}
                 rowDragEntireRow={false}
                 onColumnMoved={onColumnStateChanged}
-                rowSelection={selectible ? "multiple" : null}
                 paginationPageSize={pageSize}
                 onFilterChanged={onFilterChanged}
                 onCellDoubleClicked={onCellDoubleClicked}
                 paginationPageSizeSelector={[25, 50, 100, 200]}
                 getRowId={(params) => params.data.id}
-                onRowSelected={
-                    selectible
-                        ? () => {
-                            const gridApi = gridRef.current.api;
-                            const selectedNodes = new Set(
-                                gridApi.getSelectedNodes().map((node) => node.data.id)
-                            );
-                            const selectedFilteredRows = [];
-                            gridApi.forEachNodeAfterFilter((node) => {
-                                if (selectedNodes.has(node.data.id)) {
-                                    selectedFilteredRows.push(node.data.id);
-                                }
-                            });
-                            setSelectedRows(selectedFilteredRows);
-                        }
-                        : null
-                }
             />
         </div>
     );

@@ -25,16 +25,22 @@ const Icons = () => {
     const fetchIcons = async () => {
         try {
             setLoading(true);
-            const response = await axios.get('http://localhost/bfiro_backend/fetch/site/products/getProducts.php');
-            const icons = response.data.data || response.data;
+            const response = await axios.get('http://localhost/bfiro_backend/fetch/site/products/getProducts.php?type=Icons');
+
+            // Check API status
+            if (response.data.status !== 1) {
+                throw new Error('API returned an error status');
+            }
+
+            const icons = response.data.data || [];
 
             const transformedData = icons.map(item => ({
                 id: item.id,
-                date: item.created_date.split(' ')[0],
+                date: item.releaseDate ? item.releaseDate.split(' ')[0] : 'N/A',
                 name: item.title,
-                format: item.formats || 'SVG, PNG',
-                solds: item.sales_count || 0,
-                price: item.final_price || item.price,
+                format: item.formats ? item.formats.map(f => f.text).join(', ') : 'SVG, PNG',
+                solds: item.sales_count || 0,  // Note: sales_count missing in backend; defaults to 0
+                price: (item.price - (item.discount || 0)),
                 status: item.status,
             }));
 
@@ -50,19 +56,27 @@ const Icons = () => {
             setStats({ total, active, inactive, sold, soldFrom, income });
         } catch (error) {
             console.error('Error fetching Icons:', error);
+            // Optional: Show user-friendly error (e.g., via toast)
+            alert('Failed to load icons. Please try again.');  // Replace with your UI lib
+            setData([]);
+            setStats({ total: 0, active: 0, inactive: 0, sold: 0, soldFrom: 0, income: 0 });
         } finally {
             setLoading(false);
         }
     };
 
     const colDefs = [
-        { headerName: '', checkboxSelection: true, headerCheckboxSelection: true, width: 50 },
         { field: 'id', headerName: 'ID', width: 80 },
         { field: 'date', headerName: 'Date', width: 120 },
         { field: 'name', headerName: 'Name', flex: 1 },
         { field: 'format', headerName: 'Format', width: 130 },
         { field: 'solds', headerName: 'Solds Number', width: 130 },
-        { field: 'price', headerName: 'Price', width: 110, valueFormatter: params => `$${params.value}` },
+        {
+            field: 'price',
+            headerName: 'Price',
+            width: 110,
+            valueFormatter: params => `$${params.value.toFixed(2)}`
+        },
         {
             headerName: 'Total Income',
             valueGetter: (params) => params.data.solds * params.data.price,
@@ -138,7 +152,7 @@ const Icons = () => {
             </div>
 
             <div className="mt-6 bg-[#171718CC] p-4 rounded-[20px]">
-                <div className="h-[450px]">
+                <div className="h-[650px]">
                     <AgGridTable
                         importedData={data}
                         tableName="icons"

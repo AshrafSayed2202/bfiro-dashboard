@@ -25,16 +25,22 @@ const Code = () => {
     const fetchCodeTemplates = async () => {
         try {
             setLoading(true);
-            const response = await axios.get('http://localhost/bfiro_backend/fetch/site/products/getProducts.php');
-            const codeTemplates = response.data.data || response.data;
+            const response = await axios.get('http://localhost/bfiro_backend/fetch/site/products/getProducts.php?type=Coded+Templates');
+
+            // Check API status
+            if (response.data.status !== 1) {
+                throw new Error('API returned an error status');
+            }
+
+            const codeTemplates = response.data.data || [];
 
             const transformedData = codeTemplates.map(item => ({
                 id: item.id,
-                date: item.created_date.split(' ')[0],
+                date: item.releaseDate ? item.releaseDate.split(' ')[0] : 'N/A',
                 name: item.title,
-                format: item.formats || 'React, Next.js, Vue',
-                solds: item.sales_count || 0,
-                price: item.final_price || item.price,
+                format: item.formats ? item.formats.map(f => f.text).join(', ') : 'No formats available',
+                solds: item.sales_count || 0,  // Note: sales_count missing in backend; defaults to 0
+                price: (item.price - (item.discount || 0)),
                 status: item.status,
             }));
 
@@ -49,20 +55,28 @@ const Code = () => {
 
             setStats({ total, active, inactive, sold, soldFrom, income });
         } catch (error) {
-            console.error('Error fetching Coded Templates:', error);
+            console.error('Error fetching Products:', error);
+            // Optional: Show user-friendly error (e.g., via toast)
+            alert('Failed to load products. Please try again.');  // Replace with your UI lib
+            setData([]);
+            setStats({ total: 0, active: 0, inactive: 0, sold: 0, soldFrom: 0, income: 0 });
         } finally {
             setLoading(false);
         }
     };
 
     const colDefs = [
-        { headerName: '', checkboxSelection: true, headerCheckboxSelection: true, width: 50 },
         { field: 'id', headerName: 'ID', width: 80 },
         { field: 'date', headerName: 'Date', width: 120 },
         { field: 'name', headerName: 'Name', flex: 1 },
         { field: 'format', headerName: 'Framework', width: 130 },
         { field: 'solds', headerName: 'Solds Number', width: 130 },
-        { field: 'price', headerName: 'Price', width: 110, valueFormatter: params => `$${params.value}` },
+        {
+            field: 'price',
+            headerName: 'Price',
+            width: 110,
+            valueFormatter: params => `$${params.value.toFixed(2)}`
+        },
         {
             headerName: 'Total Income',
             valueGetter: (params) => params.data.solds * params.data.price,
@@ -99,28 +113,28 @@ const Code = () => {
     if (loading) {
         return (
             <div className="flex items-center justify-center h-96">
-                <div className="text-white text-xl">Loading Coded Templates...</div>
+                <div className="text-white text-xl">Loading Products...</div>
             </div>
         );
     }
 
     return (
         <div>
-            <Header title="Code" />
+            <Header title="Products" />
             <div className="mt-6 flex flex-wrap gap-6">
                 <div className="bg-[#171718CC] p-5 rounded-[20px] flex-1 min-w-[200px] text-center">
-                    <p className="text-xl text-white">Total Code Snippets</p>
+                    <p className="text-xl text-white">Total Products</p>
                     <p className="text-4xl font-bold text-white mt-2">{stats.total}</p>
                 </div>
                 <div className="bg-[#171718CC] p-5 rounded-[20px] flex-1 min-w-[200px] text-center">
-                    <p className="text-xl text-white">Active Code Snippets</p>
+                    <p className="text-xl text-white">Active Products</p>
                     <p className="text-4xl font-bold text-white mt-2">{stats.active}</p>
                     <p className="text-sm text-gray-400 mt-1">Inactive: {stats.inactive}</p>
                 </div>
                 <div className="bg-[#171718CC] p-5 rounded-[20px] flex-1 min-w-[200px] text-center">
                     <p className="text-xl text-white">Total Sold Items</p>
                     <p className="text-4xl font-bold text-white mt-2">{stats.sold}</p>
-                    <p className="text-sm text-gray-400 mt-1">From {stats.soldFrom} code snippets</p>
+                    <p className="text-sm text-gray-400 mt-1">From {stats.soldFrom} products</p>
                 </div>
                 <div className="bg-[#171718CC] p-5 rounded-[20px] flex-1 min-w-[200px] text-center">
                     <p className="text-xl text-white">Total Income</p>
@@ -133,15 +147,16 @@ const Code = () => {
                     onClick={() => navigate('/code/new')}
                     className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition duration-200"
                 >
-                    Create New Code Snippet
+                    Create New Product
                 </button>
             </div>
 
             <div className="mt-6 bg-[#171718CC] p-4 rounded-[20px]">
-                <div className="h-[450px]">
+                <div className="h-[650px] ">
                     <AgGridTable
+                        className="h-full w-full"
                         importedData={data}
-                        tableName="code"
+                        tableName="products"
                         colDefs={colDefs}
                         selectible={true}
                         selectedRows={selectedRows}
