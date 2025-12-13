@@ -24,6 +24,8 @@ import Logout from '../assets/svgs/Logout';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { logout } from '../store/features/authSlice';
+import YearlyAccess from '../assets/svgs/YearlyAccess';
+import Team from '../assets/svgs/Team';
 const baseURL = import.meta.env.VITE_BASE_URL || 'http://localhost/bfiro_backend/';
 
 const Aside = () => {
@@ -40,6 +42,8 @@ const Aside = () => {
     const isFontsActive = currentPath.includes('/fonts');
     const isPricingActive = currentPath === '/pricing';
     const isContactActive = currentPath.includes('/contact-us');
+    const isYearlyActive = currentPath.includes('/yearly-access');
+    const isTeamActive = currentPath.includes('/our-team');
     const uxCampPaths = ['/ux-camp/pricing', '/ux-camp/status', '/ux-camp/sessions', '/ux-camp/users', '/ux-camp/materials'];
     const isUxCampActive = uxCampPaths.includes(currentPath);
     const isUxPricingActive = currentPath === '/ux-camp/pricing';
@@ -196,17 +200,6 @@ const Aside = () => {
                         </Link>
                     </li>
                     <li>
-                        <Link
-                            to="/contact-us"
-                            className={`flex trans-3 items-center p-4 hover:bg-[#333] ${isCollapsed ? "" : "rounded-[10px]"} ${isContactActive ? '!bg-[#1D2030] text-[#1FCCFF]' : ''}`}
-                        >
-                            <div className='size-[24px] min-w-[24px] rounded-full flex items-center justify-center mr-2'>
-                                <Contact active={isContactActive} />
-                            </div>
-                            {!isCollapsed && 'Contact Us'}
-                        </Link>
-                    </li>
-                    <li>
                         <button
                             onClick={() => toggleCategory('uxCamp')}
                             className={`flex trans-3 items-center p-4 w-full text-left hover:bg-[#333] ${isCollapsed ? "" : "rounded-[10px]"} ${isUxCampButtonActive ? 'text-white' : ''}`}
@@ -281,6 +274,28 @@ const Aside = () => {
                     </li>
                     <li>
                         <Link
+                            to="/yearly-access"
+                            className={`flex trans-3 items-center p-4 hover:bg-[#333] ${isCollapsed ? "" : "rounded-[10px]"} ${isYearlyActive ? '!bg-[#1D2030] text-[#1FCCFF]' : ''}`}
+                        >
+                            <div className='size-[24px] min-w-[24px] rounded-full flex items-center justify-center mr-2'>
+                                <YearlyAccess active={isYearlyActive} />
+                            </div>
+                            {!isCollapsed && 'Yearly Access'}
+                        </Link>
+                    </li>
+                    <li>
+                        <Link
+                            to="/our-team"
+                            className={`flex trans-3 items-center p-4 hover:bg-[#333] ${isCollapsed ? "" : "rounded-[10px]"} ${isTeamActive ? '!bg-[#1D2030] text-[#1FCCFF]' : ''}`}
+                        >
+                            <div className='size-[24px] min-w-[24px] rounded-full flex items-center justify-center mr-2'>
+                                <Team active={isTeamActive} />
+                            </div>
+                            {!isCollapsed && 'Our Team'}
+                        </Link>
+                    </li>
+                    <li>
+                        <Link
                             to="/users"
                             className={`flex trans-3 items-center p-4 hover:bg-[#333] ${isCollapsed ? "" : "rounded-[10px]"} ${isUsersActive ? '!bg-[#1D2030] text-[#1FCCFF]' : ''}`}
                         >
@@ -288,6 +303,17 @@ const Aside = () => {
                                 <Users active={isUsersActive} />
                             </div>
                             {!isCollapsed && 'Users'}
+                        </Link>
+                    </li>
+                    <li>
+                        <Link
+                            to="/contact-us"
+                            className={`flex trans-3 items-center p-4 hover:bg-[#333] ${isCollapsed ? "" : "rounded-[10px]"} ${isContactActive ? '!bg-[#1D2030] text-[#1FCCFF]' : ''}`}
+                        >
+                            <div className='size-[24px] min-w-[24px] rounded-full flex items-center justify-center mr-2'>
+                                <Contact active={isContactActive} />
+                            </div>
+                            {!isCollapsed && 'Contact Us'}
                         </Link>
                     </li>
                     <li>

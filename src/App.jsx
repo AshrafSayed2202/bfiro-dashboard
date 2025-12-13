@@ -55,6 +55,8 @@ function App() {
           <Route path="ux-camp/sessions" element={<EmptyPlaceholder title="UX Camp Sessions" />} />
           <Route path="ux-camp/users" element={<EmptyPlaceholder title="UX Camp Users" />} />
           <Route path="ux-camp/materials" element={<EmptyPlaceholder title="UX Camp Materials" />} />
+          <Route path="yearly-access" element={<EmptyPlaceholder title="Yearly Access" />} />
+          <Route path="our-team" element={<EmptyPlaceholder title="Our Team" />} />
           <Route path="users" element={<Users />} />
         </Route>
       </Routes>
