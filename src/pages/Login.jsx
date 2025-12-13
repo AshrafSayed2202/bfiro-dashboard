@@ -11,7 +11,7 @@ import { fetchUser } from "../store/features/authSlice";
 import { toast } from "react-toastify";
 import axios from "axios";
 
-const baseURL = import.meta.env.VITE_BASE_URL || 'http://localhost:3000/'; // Placeholder base URL
+const baseURL = import.meta.env.VITE_BASE_URL || 'http://localhost/bfiro_backend/'; // Adjusted base URL to match backend
 
 const Login = () => {
     const [formData, setFormData] = useState(INIT_DATA);
@@ -63,7 +63,7 @@ const Login = () => {
         try {
             setIsSubmitting(true);
             await axios
-                .post(baseURL + "actions/users/login.php", extractedData, {
+                .post(baseURL + "actions/admin/users/login.php", extractedData, {
                     headers: {
                         "Content-Type": "multipart/form-data",
                     },

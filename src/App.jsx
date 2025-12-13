@@ -22,6 +22,8 @@ import EditIllustrations from './pages/Products/Illustrations/EditIllustrations'
 import EditIcons from './pages/Products/Icons/EditIcons';
 import EditFonts from './pages/Products/Fonts/EditFonts';
 import EditCodes from './pages/Products/Code/EditCodes';
+import Pricing from './pages/Pricing/Pricing';
+import Contacts from './pages/Contacts/Contacts';
 function App() {
   return (
     <BrowserRouter>
@@ -46,8 +48,8 @@ function App() {
           <Route path="fonts" element={<Fonts />} />
           <Route path="fonts/:id" element={<EditFonts />} />
           <Route path="fonts/new" element={<CreateFonts />} />
-          <Route path="pricing" element={<EmptyPlaceholder title="Pricing" />} />
-          <Route path="contact-us" element={<EmptyPlaceholder title="Contact Us" />} />
+          <Route path="pricing" element={<Pricing />} />
+          <Route path="contact-us" element={<Contacts />} />
           <Route path="ux-camp/pricing" element={<EmptyPlaceholder title="UX Camp Pricing" />} />
           <Route path="ux-camp/status" element={<EmptyPlaceholder title="UX Camp Status" />} />
           <Route path="ux-camp/sessions" element={<EmptyPlaceholder title="UX Camp Sessions" />} />

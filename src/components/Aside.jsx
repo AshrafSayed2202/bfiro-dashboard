@@ -1,10 +1,10 @@
 /* eslint-disable no-unused-vars */
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Logo from '../assets/images/Logo.png';
 import { FaChevronDown, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import Dashboard from '../assets/svgs/Dashboard';
 import Products from '../assets/svgs/Products';
 import UiKits from '../assets/svgs/UiKits';
@@ -21,11 +21,14 @@ import UxUsers from '../assets/svgs/UxUsers';
 import Materials from '../assets/svgs/Materials';
 import Users from '../assets/svgs/Users';
 import Logout from '../assets/svgs/Logout';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import { logout } from '../store/features/authSlice';
+const baseURL = import.meta.env.VITE_BASE_URL || 'http://localhost/bfiro_backend/';
 
 const Aside = () => {
     const location = useLocation();
     const currentPath = location.pathname;
-
     // Active checks
     const isDashboardActive = currentPath === '/';
     const productsPaths = ['/ui-kits', '/code', '/icons', '/illustrations', '/fonts'];
@@ -50,6 +53,8 @@ const Aside = () => {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [openCategories, setOpenCategories] = useState({ products: isProductsActive, uxCamp: isUxCampActive });
     const user = useSelector((state) => state.auth.user); // From Redux
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const toggleCollapse = () => setIsCollapsed(!isCollapsed);
     const toggleCategory = (category) => {
@@ -69,6 +74,12 @@ const Aside = () => {
     // Button active states (active if URL matches or category is open)
     const isProductsButtonActive = isProductsActive || openCategories.products;
     const isUxCampButtonActive = isUxCampActive || openCategories.uxCamp;
+
+    const handleLogout = async () => {
+        await axios.post(baseURL + 'actions/admin/users/logout.php', {}, { withCredentials: true });
+        dispatch(logout()); // Clears user from Redux state
+        navigate('/login');
+    };
 
     return (
         <motion.aside
@@ -280,15 +291,15 @@ const Aside = () => {
                         </Link>
                     </li>
                     <li>
-                        <Link
-                            to="/login"
-                            className={`flex trans-3 items-center p-4 hover:bg-[#333] ${isCollapsed ? "" : "rounded-[10px]"} ${isLogoutActive ? '!bg-[#1D2030] text-[#1FCCFF]' : ''}`}
-                        > {/* Assuming logout navigates to login */}
+                        <button
+                            onClick={handleLogout}
+                            className={`flex trans-3 items-center p-4 w-full text-left hover:bg-[#333] ${isCollapsed ? "" : "rounded-[10px]"} ${isLogoutActive ? '!bg-[#1D2030] text-[#1FCCFF]' : ''}`}
+                        >
                             <div className='size-[24px] min-w-[24px] rounded-full flex items-center justify-center mr-2'>
                                 <Logout active={isLogoutActive} />
                             </div>
                             {!isCollapsed && 'Log Out'}
-                        </Link>
+                        </button>
                     </li>
                 </ul>
             </nav>
