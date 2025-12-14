@@ -215,7 +215,7 @@ const Aside = () => {
                             variants={submenuVariants}
                             className={`overflow-hidden border-[#424242] ${isCollapsed ? 'border-l-[3px]' : 'border-l-[1px]'}`}
                         >
-                            <li>
+                            {/* <li>
                                 <Link
                                     to="/ux-camp/pricing"
                                     className={`flex trans-3 items-center ${isCollapsed ? "!p-4" : "pl-8 rounded-r-[10px]"} p-2 hover:bg-[#333] ${isUxPricingActive ? '!bg-[#1D2030] text-[#1FCCFF]' : ''}`}
@@ -225,7 +225,7 @@ const Aside = () => {
                                     </div>
                                     <span className={`${isCollapsed ? "hidden" : "block"}`}>Pricing</span>
                                 </Link>
-                            </li>
+                            </li> */}
                             <li>
                                 <Link
                                     to="/ux-camp/status"
@@ -237,7 +237,7 @@ const Aside = () => {
                                     <span className={`${isCollapsed ? "hidden" : "block"}`}>Status</span>
                                 </Link>
                             </li>
-                            <li>
+                            {/* <li>
                                 <Link
                                     to="/ux-camp/sessions"
                                     className={`flex trans-3 items-center ${isCollapsed ? "!p-4" : "pl-8 rounded-r-[10px]"} p-2 hover:bg-[#333] ${isSessionsActive ? '!bg-[#1D2030] text-[#1FCCFF]' : ''}`}
@@ -247,8 +247,8 @@ const Aside = () => {
                                     </div>
                                     <span className={`${isCollapsed ? "hidden" : "block"}`}>Sessions</span>
                                 </Link>
-                            </li>
-                            <li>
+                            </li> */}
+                            {/* <li>
                                 <Link
                                     to="/ux-camp/users"
                                     className={`flex trans-3 items-center ${isCollapsed ? "!p-4" : "pl-8 rounded-r-[10px]"} p-2 hover:bg-[#333] ${isUxUsersActive ? '!bg-[#1D2030] text-[#1FCCFF]' : ''}`}
@@ -258,7 +258,7 @@ const Aside = () => {
                                     </div>
                                     <span className={`${isCollapsed ? "hidden" : "block"}`}>Users</span>
                                 </Link>
-                            </li>
+                            </li> */}
                             <li>
                                 <Link
                                     to="/ux-camp/materials"

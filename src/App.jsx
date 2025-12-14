@@ -26,6 +26,9 @@ import Pricing from './pages/Pricing/Pricing';
 import Contacts from './pages/Contacts/Contacts';
 import YearlyAccess from './pages/YearlyAccess/YearlyAccess';
 import OurTeam from './pages/OurTeam/OurTeam';
+import Status from './pages/UxCamp/Status';
+import Materials from './pages/UxCamp/Materials';
+import Camp from './pages/UxCamp/Camp';
 function App() {
   return (
     <BrowserRouter>
@@ -52,11 +55,12 @@ function App() {
           <Route path="fonts/new" element={<CreateFonts />} />
           <Route path="pricing" element={<Pricing />} />
           <Route path="contact-us" element={<Contacts />} />
-          <Route path="ux-camp/pricing" element={<EmptyPlaceholder title="UX Camp Pricing" />} />
-          <Route path="ux-camp/status" element={<EmptyPlaceholder title="UX Camp Status" />} />
-          <Route path="ux-camp/sessions" element={<EmptyPlaceholder title="UX Camp Sessions" />} />
-          <Route path="ux-camp/users" element={<EmptyPlaceholder title="UX Camp Users" />} />
-          <Route path="ux-camp/materials" element={<EmptyPlaceholder title="UX Camp Materials" />} />
+          {/* <Route path="ux-camp/pricing" element={<EmptyPlaceholder title="UX Camp Pricing" />} /> */}
+          <Route path="ux-camp/status" element={<Status />} />
+          <Route path="ux-camp/status/:id" element={<Camp />} />
+          {/* <Route path="ux-camp/sessions" element={<EmptyPlaceholder title="UX Camp Sessions" />} /> */}
+          {/* <Route path="ux-camp/users" element={<EmptyPlaceholder title="UX Camp Users" />} /> */}
+          <Route path="ux-camp/materials" element={<Materials />} />
           <Route path="yearly-access" element={<YearlyAccess />} />
           <Route path="our-team" element={<OurTeam />} />
           <Route path="users" element={<Users />} />

@@ -34,16 +34,16 @@ const Users = () => {
                 date: user.created_at ? user.created_at.split(' ')[0] : 'N/A',
                 name: user.name,
                 email: user.email,
-                status: user.status,
+                status: user.status === 1 ? 'active' : 'inactive',
                 spending: parseFloat(user.spending) || 0
             }));
 
             setData(transformedData);
 
             const total = response.data.total || users.length;
-            const active = users.filter(u => u.status === 'active').length;
+            const active = transformedData.filter(d => d.status === 'active').length;
             const inactive = total - active;
-            const totalSpending = users.reduce((sum, u) => sum + parseFloat(u.spending), 0);
+            const totalSpending = transformedData.reduce((sum, d) => sum + d.spending, 0);
 
             setStats({ total, active, inactive, totalSpending });
         } catch (error) {
@@ -53,6 +53,25 @@ const Users = () => {
             setStats({ total: 0, active: 0, inactive: 0, totalSpending: 0 });
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleToggleStatus = async (userId, currentStatus) => {
+        const newStatusNum = currentStatus === 'active' ? 0 : 1;
+        try {
+            const response = await axios.post('http://localhost/bfiro_backend/actions/admin/users/editStatus.php', {
+                id: userId,
+                status: newStatusNum
+            });
+
+            if (response.data.status !== 1) {
+                throw new Error(response.data.message || 'Failed to update status');
+            }
+
+            fetchUsers();
+        } catch (error) {
+            console.error('Error toggling status:', error);
+            alert('Failed to update status. Please try again.');
         }
     };
 
@@ -79,6 +98,18 @@ const Users = () => {
             headerName: 'Spending',
             width: 140,
             valueFormatter: params => `$${params.value.toFixed(2)}`
+        },
+        {
+            headerName: 'Actions',
+            width: 150,
+            cellRenderer: (params) => (
+                <button
+                    className={`px-4 py-1 rounded text-white ${params.data.status === 'active' ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'}`}
+                    onClick={() => handleToggleStatus(params.data.id, params.data.status)}
+                >
+                    {params.data.status === 'active' ? 'Deactivate' : 'Activate'}
+                </button>
+            ),
         },
     ];
 
