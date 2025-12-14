@@ -1,42 +1,133 @@
 import { useState, useEffect } from 'react';
+import axios from 'axios';
 import AgGridTable from '../components/AgGridTable';
 import Header from '../components/UI/Header';
-
-const mockData = [
-    { id: 1, name: 'User 1', email: 'user1@example.com', role: 'Admin' },
-    // Add more
-];
-
-const colDefs = [
-    { field: 'id', headerName: 'ID' },
-    { field: 'name', headerName: 'Name' },
-    { field: 'email', headerName: 'Email' },
-    { field: 'role', headerName: 'Role' },
-];
 
 const Users = () => {
     const [data, setData] = useState([]);
     const [selectedRows, setSelectedRows] = useState([]);
+    const [stats, setStats] = useState({
+        total: 0,
+        active: 0,
+        inactive: 0,
+        totalSpending: 0
+    });
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        setData(mockData);
+        fetchUsers();
     }, []);
+
+    const fetchUsers = async () => {
+        try {
+            setLoading(true);
+            const response = await axios.get('http://localhost/bfiro_backend/fetch/admin/selections/users.php');
+
+            if (response.data.status !== 1) {
+                throw new Error('API returned an error status');
+            }
+
+            const users = response.data.users || [];
+
+            const transformedData = users.map(user => ({
+                id: user.id,
+                date: user.created_at ? user.created_at.split(' ')[0] : 'N/A',
+                name: user.name,
+                email: user.email,
+                status: user.status,
+                spending: parseFloat(user.spending) || 0
+            }));
+
+            setData(transformedData);
+
+            const total = response.data.total || users.length;
+            const active = users.filter(u => u.status === 'active').length;
+            const inactive = total - active;
+            const totalSpending = users.reduce((sum, u) => sum + parseFloat(u.spending), 0);
+
+            setStats({ total, active, inactive, totalSpending });
+        } catch (error) {
+            console.error('Error fetching users:', error);
+            alert('Failed to load users. Please try again.');
+            setData([]);
+            setStats({ total: 0, active: 0, inactive: 0, totalSpending: 0 });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const colDefs = [
+        { field: 'id', headerName: 'ID', width: 80 },
+        { field: 'date', headerName: 'Date', width: 120 },
+        { field: 'name', headerName: 'Name', flex: 1 },
+        { field: 'email', headerName: 'Email', flex: 1 },
+        {
+            field: 'status',
+            headerName: 'Status',
+            width: 110,
+            cellRenderer: (params) => (
+                <span className={`px-3 py-1 rounded-full text-xs font-medium ${params.value === 'active'
+                    ? 'bg-green-900 text-green-300'
+                    : 'bg-gray-700 text-gray-300'
+                    }`}>
+                    {params.value}
+                </span>
+            )
+        },
+        {
+            field: 'spending',
+            headerName: 'Spending',
+            width: 140,
+            valueFormatter: params => `$${params.value.toFixed(2)}`
+        },
+    ];
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-96">
+                <div className="text-white text-xl">Loading Users...</div>
+            </div>
+        );
+    }
 
     return (
         <div>
             <Header title="Users" />
-            {/* <AgGridTable
-                importedData={data}
-                tableName="users"
-                colDefs={colDefs}
-                selectible={true}
-                selectedRows={selectedRows}
-                setSelectedRows={setSelectedRows}
-                pdfExport={true}
-                csvExport={true}
-                colsManage={true}
-                roleNumber={65}
-            /> */}
+
+            {/* Stats Cards */}
+            <div className="mt-6 flex flex-wrap gap-6">
+                <div className="bg-[#171718CC] p-5 rounded-[20px] flex-1 min-w-[200px] text-center">
+                    <p className="text-xl text-white">Total Users</p>
+                    <p className="text-4xl font-bold text-white mt-2">{stats.total}</p>
+                </div>
+                <div className="bg-[#171718CC] p-5 rounded-[20px] flex-1 min-w-[200px] text-center">
+                    <p className="text-xl text-white">Active Users</p>
+                    <p className="text-4xl font-bold text-white mt-2">{stats.active}</p>
+                    <p className="text-sm text-gray-400 mt-1">Inactive: {stats.inactive}</p>
+                </div>
+                <div className="bg-[#171718CC] p-5 rounded-[20px] flex-1 min-w-[200px] text-center">
+                    <p className="text-xl text-white">Total Spending</p>
+                    <p className="text-4xl font-bold text-white mt-2">${stats.totalSpending.toFixed(2)}</p>
+                </div>
+            </div>
+
+            {/* Table */}
+            <div className="mt-6 bg-[#171718CC] p-4 rounded-[20px]">
+                <div className="h-[650px]">
+                    <AgGridTable
+                        importedData={data}
+                        tableName="users"
+                        colDefs={colDefs}
+                        selectible={true}
+                        selectedRows={selectedRows}
+                        setSelectedRows={setSelectedRows}
+                        pdfExport={true}
+                        csvExport={true}
+                        colsManage={true}
+                        roleNumber={65}
+                    />
+                </div>
+            </div>
         </div>
     );
 };

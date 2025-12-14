@@ -24,6 +24,8 @@ import EditFonts from './pages/Products/Fonts/EditFonts';
 import EditCodes from './pages/Products/Code/EditCodes';
 import Pricing from './pages/Pricing/Pricing';
 import Contacts from './pages/Contacts/Contacts';
+import YearlyAccess from './pages/YearlyAccess/YearlyAccess';
+import OurTeam from './pages/OurTeam/OurTeam';
 function App() {
   return (
     <BrowserRouter>
@@ -55,8 +57,8 @@ function App() {
           <Route path="ux-camp/sessions" element={<EmptyPlaceholder title="UX Camp Sessions" />} />
           <Route path="ux-camp/users" element={<EmptyPlaceholder title="UX Camp Users" />} />
           <Route path="ux-camp/materials" element={<EmptyPlaceholder title="UX Camp Materials" />} />
-          <Route path="yearly-access" element={<EmptyPlaceholder title="Yearly Access" />} />
-          <Route path="our-team" element={<EmptyPlaceholder title="Our Team" />} />
+          <Route path="yearly-access" element={<YearlyAccess />} />
+          <Route path="our-team" element={<OurTeam />} />
           <Route path="users" element={<Users />} />
         </Route>
       </Routes>
