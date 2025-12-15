@@ -22,7 +22,7 @@ const Users = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        "http://localhost/bfiro_backend/fetch/admin/selections/users.php",
+        "http://localhost/bfiro_backend/fetch/admin/users/users.php",
         { withCredentials: true }
       );
 
