@@ -36,7 +36,7 @@ const Materials = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        "http://localhost/bfiro_backend/fetch/admin/uxCamp/matrials.php",
+        "http://localhost/bfiro_backend/fetch/admin/uxCamp/materials.php",
         { withCredentials: true }
       );
 

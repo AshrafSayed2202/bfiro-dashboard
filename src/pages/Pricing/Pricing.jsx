@@ -101,6 +101,9 @@ const Pricing = () => {
           uxCampOldPrice,
         },
         {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
           withCredentials: true,
         }
       );
