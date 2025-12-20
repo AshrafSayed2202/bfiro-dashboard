@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Header from "../../../components/UI/Header";
-
+const baseURL = import.meta.env.VITE_BASE_URL; // Adjusted base URL to match backend
 const CreateFonts = () => {
   const navigate = useNavigate();
 
@@ -75,7 +75,7 @@ const CreateFonts = () => {
       gallery.forEach((file, i) => formData.append(`gallery[${i}]`, file));
 
       await axios.post(
-        "http://localhost/bfiro_backend/actions/products/createProduct.php",
+        `${baseURL}actions/products/createProduct.php`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Header from "../../components/UI/Header";
-
+const baseURL = import.meta.env.VITE_BASE_URL; // Adjusted base URL to match backend
 const Pricing = () => {
   const [designPrice, setDesignPrice] = useState(0);
   const [designOldPrice, setDesignOldPrice] = useState(0);
@@ -21,7 +21,7 @@ const Pricing = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        "http://localhost/bfiro_backend/fetch/admin/pricing/pricing.php",
+        baseURL + "fetch/admin/pricing/pricing.php",
         {
           withCredentials: true,
         }
@@ -89,7 +89,7 @@ const Pricing = () => {
   const handleSave = async () => {
     try {
       const response = await axios.post(
-        "http://localhost/bfiro_backend/actions/admin/pricing/edit.php",
+        baseURL + "actions/admin/pricing/edit.php",
         {
           designPrice,
           designOldPrice,

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Header from "../../components/UI/Header";
-
+const baseURL = import.meta.env.VITE_BASE_URL; // Adjusted base URL to match backend
 const Contacts = () => {
   const [figma, setFigma] = useState("");
   const [behance, setBehance] = useState("");
@@ -19,7 +19,7 @@ const Contacts = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        "http://localhost/bfiro_backend/fetch/admin/contact/getContacts.php",
+        baseURL + "fetch/admin/contact/getContacts.php",
         {
           withCredentials: true,
         }
@@ -54,7 +54,7 @@ const Contacts = () => {
   const handleSave = async () => {
     try {
       const response = await axios.post(
-        "http://localhost/bfiro_backend/actions/admin/contact/edit.php",
+        baseURL + "actions/admin/contact/edit.php",
         {
           figma,
           behance,

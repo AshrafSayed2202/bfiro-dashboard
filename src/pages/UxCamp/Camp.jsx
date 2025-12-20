@@ -3,7 +3,8 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import AgGridTable from "../../components/AgGridTable";
 import Header from "../../components/UI/Header";
-
+const baseURL = import.meta.env.VITE_BASE_URL; // Adjusted base URL to match backend
+const storageUrl = import.meta.env.VITE_BASE_STORAGE_URL;
 const CampDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -35,8 +36,7 @@ const CampDetails = () => {
     status: "",
   });
 
-  const baseCertificateUrl =
-    "http://localhost/bfiro_backend/storage/certificates/";
+  const baseCertificateUrl = `${storageUrl}certificates/`;
 
   useEffect(() => {
     fetchCamp();
@@ -46,7 +46,7 @@ const CampDetails = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `http://localhost/bfiro_backend/fetch/admin/uxCamp/uxCamp.php?id=${id}`,
+        `${baseURL}fetch/admin/uxCamp/uxCamp.php?id=${id}`,
         {
           withCredentials: true,
         }
@@ -92,7 +92,7 @@ const CampDetails = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost/bfiro_backend/actions/admin/uxCamp/edit.php",
+        `${baseURL}actions/admin/uxCamp/edit.php`,
         payload,
         {
           withCredentials: true,
@@ -172,7 +172,7 @@ const CampDetails = () => {
 
       try {
         const response = await axios.post(
-          "http://localhost/bfiro_backend/actions/admin/uxCamp/editUser.php",
+          `${baseURL}actions/admin/uxCamp/editUser.php`,
           form,
           {
             headers: { "Content-Type": "multipart/form-data" },
@@ -199,7 +199,7 @@ const CampDetails = () => {
 
       try {
         const response = await axios.post(
-          "http://localhost/bfiro_backend/actions/admin/uxCamp/addUser.php",
+          `${baseURL}actions/admin/uxCamp/addUser.php`,
           payload,
           { withCredentials: true }
         );
@@ -232,7 +232,7 @@ const CampDetails = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost/bfiro_backend/actions/admin/uxCamp/removeUser.php",
+        `${baseURL}actions/admin/uxCamp/removeUser.php`,
         payload,
         {
           withCredentials: true,
@@ -297,17 +297,15 @@ const CampDetails = () => {
     var endpoint;
     if (isSessionEdit) {
       payload.session_id = currentSession.session_id;
-      endpoint = "/actions/admin/uxCamp/editSession.php";
+      endpoint = "actions/admin/uxCamp/editSession.php";
     } else {
-      endpoint = "/actions/admin/uxCamp/addSession.php";
+      endpoint = "actions/admin/uxCamp/addSession.php";
     }
 
     try {
-      const response = await axios.post(
-        `http://localhost/bfiro_backend${endpoint}`,
-        payload,
-        { withCredentials: true }
-      );
+      const response = await axios.post(`${baseURL}${endpoint}`, payload, {
+        withCredentials: true,
+      });
 
       if (response.data.status !== 1) {
         throw new Error(response.data.message || "Failed to save");
@@ -332,7 +330,7 @@ const CampDetails = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost/bfiro_backend/actions/admin/uxCamp/removeSession.php",
+        `${baseURL}actions/admin/uxCamp/removeSession.php`,
         payload,
         { withCredentials: true }
       );

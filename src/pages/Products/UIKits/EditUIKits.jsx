@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Header from "../../../components/UI/Header";
-
+const baseURL = import.meta.env.VITE_BASE_URL; // Adjusted base URL to match backend
 const EditUIKits = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -41,7 +41,7 @@ const EditUIKits = () => {
       try {
         setLoading(true);
         const response = await axios.get(
-          `http://localhost/bfiro_backend/fetch/site/products/getProduct.php?id=${id}`,
+          `${baseURL}fetch/site/products/getProduct.php?id=${id}`,
           { withCredentials: true }
         );
         const result = response.data;
@@ -164,7 +164,7 @@ const EditUIKits = () => {
       gallery.forEach((file, i) => formData.append(`gallery[${i}]`, file));
 
       await axios.post(
-        `http://localhost/bfiro_backend/actions/products/updateProduct.php?id=${id}`,
+        `${baseURL}actions/products/updateProduct.php?id=${id}`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -197,7 +197,7 @@ const EditUIKits = () => {
 
     try {
       await axios.post(
-        `http://localhost/bfiro_backend/actions/products/deleteProduct.php?id=${id}`,
+        `${baseURL}actions/products/deleteProduct.php?id=${id}`,
         {
           withCredentials: true,
         }

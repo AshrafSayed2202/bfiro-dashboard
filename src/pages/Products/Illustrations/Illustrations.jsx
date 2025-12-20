@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import AgGridTable from "../../../components/AgGridTable";
 import Header from "../../../components/UI/Header";
-
+const baseURL = import.meta.env.VITE_BASE_URL; // Adjusted base URL to match backend
 const Illustrations = () => {
   const [data, setData] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -26,7 +26,7 @@ const Illustrations = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        "http://localhost/bfiro_backend/fetch/site/products/getProducts.php?type=Illustrations",
+        `${baseURL}fetch/site/products/getProducts.php?type=Illustrations`,
         {
           withCredentials: true,
         }

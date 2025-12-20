@@ -4,7 +4,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import AgGridTable from "../../components/AgGridTable";
 import Header from "../../components/UI/Header";
-
+const baseURL = import.meta.env.VITE_BASE_URL; // Adjusted base URL to match backend
 const Status = () => {
   const [data, setData] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -31,7 +31,7 @@ const Status = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        "http://localhost/bfiro_backend/fetch/admin/uxCamp/uxCamps.php",
+        `${baseURL}fetch/admin/uxCamp/uxCamps.php`,
         {
           withCredentials: true,
         }
@@ -94,7 +94,7 @@ const Status = () => {
 
     try {
       const response = await axios.post(
-        `http://localhost/bfiro_backend/actions/admin/uxCamp/add.php`,
+        `${baseURL}actions/admin/uxCamp/add.php`,
         form,
         {
           headers: { "Content-Type": "multipart/form-data" },

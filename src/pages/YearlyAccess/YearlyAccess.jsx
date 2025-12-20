@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import AgGridTable from "../../components/AgGridTable";
 import Header from "../../components/UI/Header";
-
+const baseURL = import.meta.env.VITE_BASE_URL; // Adjusted base URL to match backend
 const YearlyAccess = () => {
   const [data, setData] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -29,7 +29,7 @@ const YearlyAccess = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        "http://localhost/bfiro_backend/fetch/admin/accessYearly/getAccessYearly.php",
+        `${baseURL}fetch/admin/accessYearly/getAccessYearly.php`,
         {
           withCredentials: true,
         }
@@ -83,7 +83,7 @@ const YearlyAccess = () => {
   const handleAddUser = async () => {
     try {
       const response = await axios.post(
-        "http://localhost/bfiro_backend/actions/accessYearly/addUser.php",
+        `${baseURL}actions/accessYearly/addUser.php`,
         formData,
         {
           withCredentials: true,
@@ -108,7 +108,7 @@ const YearlyAccess = () => {
     const newStatus = currentStatus === "active" ? "inactive" : "active";
     try {
       const response = await axios.post(
-        "http://localhost/bfiro_backend/fetch/accessYearly/editUser.php",
+        `${baseURL}fetch/accessYearly/editUser.php`,
         {
           user_id: userId,
           status: newStatus,

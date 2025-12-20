@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import AgGridTable from "../../components/AgGridTable";
 import Header from "../../components/UI/Header";
-
+const baseUrl = import.meta.env.VITE_BASE_URL; // Adjusted base URL to match backend
+const storageUrl = import.meta.env.VITE_BASE_STORAGE_URL;
 const OurTeam = () => {
   const [data, setData] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -21,8 +22,6 @@ const OurTeam = () => {
   const [preview, setPreview] = useState(null);
   const [error, setError] = useState(null);
 
-  const baseUrl = "http://localhost/bfiro_backend/storage/teams/";
-
   useEffect(() => {
     fetchTeamMembers();
   }, []);
@@ -31,7 +30,7 @@ const OurTeam = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        "http://localhost/bfiro_backend/fetch/admin/team/members.php",
+        baseUrl + "fetch/admin/team/members.php",
         { withCredentials: true }
       );
 
@@ -46,7 +45,7 @@ const OurTeam = () => {
         name: member.name,
         title: member.title,
         description: member.description,
-        imageUrl: member.image ? baseUrl + member.image : null,
+        imageUrl: member.image ? storageUrl + "teams/" + member.image : null,
       }));
 
       setData(transformedData);
@@ -86,8 +85,8 @@ const OurTeam = () => {
     setError(null);
 
     const endpoint = isEdit
-      ? "/actions/admin/team/edit.php"
-      : "/actions/admin/team/add.php";
+      ? "actions/admin/team/edit.php"
+      : "actions/admin/team/add.php";
     const form = new FormData();
     form.append("name", formData.name);
     form.append("title", formData.title);
@@ -100,14 +99,10 @@ const OurTeam = () => {
     }
 
     try {
-      const response = await axios.post(
-        `http://localhost/bfiro_backend${endpoint}`,
-        form,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-          withCredentials: true,
-        }
-      );
+      const response = await axios.post(`${baseUrl}${endpoint}`, form, {
+        headers: { "Content-Type": "multipart/form-data" },
+        withCredentials: true,
+      });
 
       if (response.data.status !== 1) {
         throw new Error(response.data.message || "Failed to save");
@@ -126,7 +121,7 @@ const OurTeam = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `http://localhost/bfiro_backend/fetch/admin/team/member.php?id=${id}`,
+        `${baseUrl}fetch/admin/team/member.php?id=${id}`,
         {
           withCredentials: true,
         }
@@ -163,7 +158,7 @@ const OurTeam = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost/bfiro_backend/actions/admin/team/delete.php",
+        `${baseUrl}actions/admin/team/delete.php`,
         { id },
         { withCredentials: true }
       );

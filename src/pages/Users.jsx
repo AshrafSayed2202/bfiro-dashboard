@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import AgGridTable from "../components/AgGridTable";
 import Header from "../components/UI/Header";
-
+const baseURL = import.meta.env.VITE_BASE_URL; // Adjusted base URL to match backend
 const Users = () => {
   const [data, setData] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -22,7 +22,7 @@ const Users = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        "http://localhost/bfiro_backend/fetch/admin/users/users.php",
+        baseURL + "fetch/admin/users/users.php",
         { withCredentials: true }
       );
 
@@ -68,7 +68,7 @@ const Users = () => {
     const newStatusNum = currentStatus === "active" ? 0 : 1;
     try {
       const response = await axios.post(
-        "http://localhost/bfiro_backend/actions/admin/users/editStatus.php",
+        baseURL + "actions/admin/users/editStatus.php",
         {
           id: userId,
           status: newStatusNum,

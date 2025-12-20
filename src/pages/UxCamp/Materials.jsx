@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import AgGridTable from "../../components/AgGridTable";
 import Header from "../../components/UI/Header";
-
+const baseURL = import.meta.env.VITE_BASE_URL; // Adjusted base URL to match backend
+const storageURL = import.meta.env.VITE_BASE_STORAGE_URL; // Adjusted storage URL to match backend
 const Materials = () => {
   const [data, setData] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -17,7 +18,7 @@ const Materials = () => {
   });
   const [error, setError] = useState(null);
 
-  const baseUrl = "http://localhost/bfiro_backend/storage/uxcamp/";
+  const baseStorageUrl = `${storageURL}uxcamp/`;
 
   const typeToField = {
     "E-book": "E-Book",
@@ -36,7 +37,7 @@ const Materials = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        "http://localhost/bfiro_backend/fetch/admin/uxCamp/materials.php",
+        `${baseURL}fetch/admin/uxCamp/materials.php`,
         { withCredentials: true }
       );
 
@@ -87,7 +88,7 @@ const Materials = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost/bfiro_backend/actions/admin/uxCamp/editMaterial.php",
+        `${baseURL}actions/admin/uxCamp/editMaterial.php`,
         form,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -138,7 +139,7 @@ const Materials = () => {
       cellRenderer: (params) =>
         params.value ? (
           <a
-            href={baseUrl + params.value}
+            href={baseStorageUrl + params.value}
             download
             className="text-blue-500 hover:underline"
           >
