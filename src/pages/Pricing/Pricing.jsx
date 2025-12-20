@@ -32,7 +32,6 @@ const Pricing = () => {
       }
 
       const pricingData = response.data.data || [];
-
       const design = pricingData.find((item) => item.title === "Design") || {
         price: 0,
         discount: 0,
@@ -40,36 +39,38 @@ const Pricing = () => {
       const subscription = pricingData.find(
         (item) => item.title === "Subscription"
       ) || { price: 0, discount: 0 };
-      const yearlyAccess = pricingData.find((item) => item.id == 2) || {
+      const yearlyAccess = pricingData.find(
+        (item) => item.title == "Yearly - Access"
+      ) || {
         price: 0,
         discount: 0,
       };
-      const uxCamp = pricingData.find((item) => item.id == 3) || {
+      const uxCamp = pricingData.find((item) => item.title == "UX Camp") || {
         price: 0,
         discount: 0,
       };
 
-      setDesignPrice(parseFloat(design.price) || 0);
-      setDesignOldPrice(
-        (parseFloat(design.price) || 0) + (parseFloat(design.discount) || 0)
+      setDesignPrice(
+        parseFloat(design.price) - parseFloat(design.discount) || 0
       );
+      setDesignOldPrice(parseFloat(design.price) || 0);
 
-      setSubscriptionPrice(parseFloat(subscription.price) || 0);
-      setSubscriptionOldPrice(
-        (parseFloat(subscription.price) || 0) +
-          (parseFloat(subscription.discount) || 0)
+      setSubscriptionPrice(
+        parseFloat(subscription.price) -
+          (parseFloat(subscription.discount) || 0) || 0
       );
+      setSubscriptionOldPrice(parseFloat(subscription.price) || 0);
 
-      setYearlyAccessPrice(parseFloat(yearlyAccess.price) || 0);
-      setYearlyAccessOldPrice(
-        (parseFloat(yearlyAccess.price) || 0) +
-          (parseFloat(yearlyAccess.discount) || 0)
+      setYearlyAccessPrice(
+        parseFloat(yearlyAccess.price) -
+          (parseFloat(yearlyAccess.discount) || 0) || 0
       );
+      setYearlyAccessOldPrice(parseFloat(yearlyAccess.price) || 0);
 
-      setUxCampPrice(parseFloat(uxCamp.price) || 0);
-      setUxCampOldPrice(
-        (parseFloat(uxCamp.price) || 0) + (parseFloat(uxCamp.discount) || 0)
+      setUxCampPrice(
+        parseFloat(uxCamp.price) - parseFloat(uxCamp.discount) || 0
       );
+      setUxCampOldPrice(parseFloat(uxCamp.price) || 0);
     } catch (error) {
       console.error("Error fetching Pricing:", error);
       alert("Failed to load pricing. Please try again.");

@@ -3,7 +3,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
 export const fetchUser = createAsyncThunk("auth/fetchUser", async () => {
-  const res = await fetch(`${baseUrl}actions/users/me.php`, {
+  const res = await fetch(`${baseUrl}actions/admin/users/me.php`, {
     credentials: "include",
   });
 
@@ -18,7 +18,7 @@ export const fetchUser = createAsyncThunk("auth/fetchUser", async () => {
 export const login = createAsyncThunk(
   "auth/login",
   async ({ email, password }) => {
-    const res = await fetch(`${baseUrl}actions/users/login.php`, {
+    const res = await fetch(`${baseUrl}actions/admin/users/login.php`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -35,7 +35,7 @@ export const login = createAsyncThunk(
 );
 
 export const logout = createAsyncThunk("auth/logout", async () => {
-  await fetch(`${baseUrl}actions/users/logout.php`, {
+  await fetch(`${baseUrl}actions/admin/users/logout.php`, {
     method: "POST",
     credentials: "include",
   });
