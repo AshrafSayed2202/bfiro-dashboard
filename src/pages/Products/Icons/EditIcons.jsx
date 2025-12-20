@@ -200,6 +200,7 @@ const EditIcons = () => {
     try {
       await axios.post(
         `${baseURL}actions/products/deleteProduct.php?id=${id}`,
+        {},
         {
           withCredentials: true,
         }
