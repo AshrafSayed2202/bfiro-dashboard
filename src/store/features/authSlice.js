@@ -1,76 +1,109 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
 
-// Update base URL to point to your PHP backend
-const baseURL = import.meta.env.VITE_BASE_URL;
+const baseUrl = import.meta.env.VITE_BASE_URL;
 
-export const fetchUser = createAsyncThunk(
-  "auth/fetchUser",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await axios.post(
-        baseURL + "actions/admin/users/me.php",
-        {}, // Empty body since it's just checking the token cookie
-        {
-          withCredentials: true, // Crucial: sends the admin_token cookie
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+export const fetchUser = createAsyncThunk("auth/fetchUser", async () => {
+  const res = await fetch(`${baseUrl}actions/users/me.php`, {
+    credentials: "include",
+  });
 
-      // Backend returns: { user: { id, email, name, status } }
-      if (response.data.user) {
-        return response.data.user;
-      } else {
-        return rejectWithValue("No user data received");
-      }
-    } catch (error) {
-      // Handle 401, invalid token, etc.
-      if (error.response?.status === 401) {
-        return rejectWithValue("Unauthorized or invalid token");
-      }
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch user"
-      );
+  if (!res.ok) {
+    throw new Error("Not authenticated");
+  }
+
+  const data = await res.json();
+  return data.user;
+});
+
+export const login = createAsyncThunk(
+  "auth/login",
+  async ({ email, password }) => {
+    const res = await fetch(`${baseUrl}actions/users/login.php`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (!res.ok) {
+      throw new Error("Invalid credentials");
     }
+
+    const data = await res.json();
+    return data.message;
   }
 );
+
+export const logout = createAsyncThunk("auth/logout", async () => {
+  await fetch(`${baseUrl}actions/users/logout.php`, {
+    method: "POST",
+    credentials: "include",
+  });
+  return null;
+});
 
 const authSlice = createSlice({
   name: "auth",
   initialState: {
     user: null,
-    status: "idle", // 'idle' | 'loading' | 'succeeded' | 'failed'
+    status: "init",
     error: null,
   },
   reducers: {
-    // Optional: Add a logout reducer if you want to clear user manually
-    logout: (state) => {
-      state.user = null;
-      state.status = "idle";
-      state.error = null;
+    // Use this when user downloads something
+    incrementTodayDownloads: (state) => {
+      if (state.user && typeof state.user.today_downloads === "number") {
+        if (state.user.access_yearly !== null) {
+          state.user.today_downloads += 1;
+        }
+      }
+    },
+
+    setTodayDownloads: (state, action) => {
+      if (state.user) {
+        if (state.user.access_yearly !== null) {
+          state.user.today_downloads = action.payload;
+        }
+      }
+    },
+
+    resetTodayDownloads: (state) => {
+      if (state.user) {
+        if (state.user.access_yearly !== null) {
+          state.user.today_downloads = 0;
+        }
+      }
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchUser.pending, (state) => {
         state.status = "loading";
-        state.error = null;
       })
       .addCase(fetchUser.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.user = action.payload;
-        state.error = null;
       })
-      .addCase(fetchUser.rejected, (state, action) => {
+      .addCase(fetchUser.rejected, (state) => {
         state.status = "failed";
         state.user = null;
-        state.error = action.payload || "Failed to authenticate";
+      })
+      .addCase(login.fulfilled, (state) => {
+        state.status = "succeeded";
+      })
+      .addCase(login.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
+      .addCase(logout.fulfilled, (state) => {
+        state.user = null;
+        state.status = "init";
       });
   },
 });
-
-export const { logout } = authSlice.actions;
-
+export const {
+  incrementTodayDownloads,
+  setTodayDownloads,
+  resetTodayDownloads,
+} = authSlice.actions;
 export default authSlice.reducer;

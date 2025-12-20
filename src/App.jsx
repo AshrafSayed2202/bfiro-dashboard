@@ -1,42 +1,75 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import PasswordReset from './pages/PasswordReset';
-import DashboardLayout from './components/DashboardLayout';
-import DashboardHome from './pages/DashboardHome';
-import UIKits from './pages/Products/UIKits/UIKits';
-import CreateUIKits from './pages/Products/UIKits/CreateUIKits';
-import Code from './pages/Products/Code/Code';
-import Icons from './pages/Products/Icons/Icons';
-import Illustrations from './pages/Products/Illustrations/Illustrations';
-import Fonts from './pages/Products/Fonts/Fonts';
-import Users from './pages/Users';
-import EmptyPlaceholder from './components/EmptyPlaceholder';
-import './assets/styles/main.css'
-import CreateCode from './pages/Products/Code/CreateCode';
-import CreateIllustrations from './pages/Products/Illustrations/CreateIllustrations';
-import CreateIcons from './pages/Products/Icons/CreateIcons';
-import CreateFonts from './pages/Products/Fonts/CreateFonts';
-import EditUIKits from './pages/Products/UIKits/EditUIKits';
-import EditIllustrations from './pages/Products/Illustrations/EditIllustrations';
-import EditIcons from './pages/Products/Icons/EditIcons';
-import EditFonts from './pages/Products/Fonts/EditFonts';
-import EditCodes from './pages/Products/Code/EditCodes';
-import Pricing from './pages/Pricing/Pricing';
-import Contacts from './pages/Contacts/Contacts';
-import YearlyAccess from './pages/YearlyAccess/YearlyAccess';
-import OurTeam from './pages/OurTeam/OurTeam';
-import Status from './pages/UxCamp/Status';
-import Materials from './pages/UxCamp/Materials';
-import Camp from './pages/UxCamp/Camp';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import PasswordReset from "./pages/PasswordReset";
+import DashboardLayout from "./components/DashboardLayout";
+import DashboardHome from "./pages/DashboardHome";
+import UIKits from "./pages/Products/UIKits/UIKits";
+import CreateUIKits from "./pages/Products/UIKits/CreateUIKits";
+import Code from "./pages/Products/Code/Code";
+import Icons from "./pages/Products/Icons/Icons";
+import Illustrations from "./pages/Products/Illustrations/Illustrations";
+import Fonts from "./pages/Products/Fonts/Fonts";
+import Users from "./pages/Users";
+import EmptyPlaceholder from "./components/EmptyPlaceholder";
+import "./assets/styles/main.css";
+import CreateCode from "./pages/Products/Code/CreateCode";
+import CreateIllustrations from "./pages/Products/Illustrations/CreateIllustrations";
+import CreateIcons from "./pages/Products/Icons/CreateIcons";
+import CreateFonts from "./pages/Products/Fonts/CreateFonts";
+import EditUIKits from "./pages/Products/UIKits/EditUIKits";
+import EditIllustrations from "./pages/Products/Illustrations/EditIllustrations";
+import EditIcons from "./pages/Products/Icons/EditIcons";
+import EditFonts from "./pages/Products/Fonts/EditFonts";
+import EditCodes from "./pages/Products/Code/EditCodes";
+import Pricing from "./pages/Pricing/Pricing";
+import Contacts from "./pages/Contacts/Contacts";
+import YearlyAccess from "./pages/YearlyAccess/YearlyAccess";
+import OurTeam from "./pages/OurTeam/OurTeam";
+import Status from "./pages/UxCamp/Status";
+import Materials from "./pages/UxCamp/Materials";
+import Camp from "./pages/UxCamp/Camp";
+import AuthRoute from "./utils/AuthRoute.jsx";
+import { useSelector } from "react-redux";
+import ProtectedRoute from "./utils/ProtectedRoute.jsx";
 function App() {
+  const { user } = useSelector((state) => state.auth);
+  const isAuthenticated = user;
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/password-reset" element={<PasswordReset />} />
-        <Route path="/" element={<DashboardLayout />}>
+        <Route
+          path="/login"
+          element={
+            <AuthRoute isAuthenticated={isAuthenticated}>
+              <Login />
+            </AuthRoute>
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            <AuthRoute isAuthenticated={isAuthenticated}>
+              <Signup />
+            </AuthRoute>
+          }
+        />
+        <Route
+          path="/password-reset"
+          element={
+            <AuthRoute isAuthenticated={isAuthenticated}>
+              <PasswordReset />
+            </AuthRoute>
+          }
+        />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<DashboardHome />} />
           <Route path="ui-kits" element={<UIKits />} />
           <Route path="ui-kits/:id" element={<EditUIKits />} />
