@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Header from "../../../components/UI/Header";
+import { Editor } from "@tinymce/tinymce-react";
+import { TINYMCE_API_KEY } from "../../../utils/env";
 const baseURL = import.meta.env.VITE_BASE_URL; // Adjusted base URL to match backend
 const EditUIKits = () => {
   const { id } = useParams();
@@ -61,11 +63,14 @@ const EditUIKits = () => {
         setTitle(product.title || "");
         setSubtitle(product.subtitle || "");
         setOverview(product.overview || "");
-        setPoints(
-          product.highlights
-            ? product.highlights.map((h) => h.highlight || "")
-            : []
-        );
+        const highlights = product.highlights
+          ? product.highlights.map((h) => h.highlight || "")
+          : [];
+        const paddedHighlights = [
+          ...highlights,
+          ...Array(6 - highlights.length).fill(""),
+        ];
+        setPoints(paddedHighlights);
         setFormats(
           product.formats ? product.formats.map((f) => f.text || "") : []
         );
@@ -123,6 +128,17 @@ const EditUIKits = () => {
     const newPoints = [...points];
     newPoints[index] = value;
     setPoints(newPoints);
+  };
+
+  const handleFormatChange = (e) => {
+    const val = e.target.value;
+    if (val && !formats.includes(val)) {
+      setFormats([...formats, val]);
+    }
+  };
+
+  const removeFormat = (index) => {
+    setFormats(formats.filter((_, i) => i !== index));
   };
 
   const handleTagKeyDown = (e) => {
@@ -432,11 +448,19 @@ const EditUIKits = () => {
 
               <div>
                 <label className="block text-white mb-2">Overview</label>
-                <textarea
+                <Editor
+                  apiKey={TINYMCE_API_KEY}
                   value={overview}
-                  onChange={(e) => setOverview(e.target.value)}
-                  rows={6}
-                  className="w-full bg-[#242426] text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  init={{
+                    height: 400,
+                    menubar: false,
+                    plugins: [
+                      "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount",
+                    ],
+                    toolbar:
+                      "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat",
+                  }}
+                  onEditorChange={(content) => setOverview(content)}
                 />
               </div>
 
@@ -467,21 +491,34 @@ const EditUIKits = () => {
                     Format (multi-select)
                   </label>
                   <select
-                    multiple
-                    value={formats}
-                    onChange={(e) =>
-                      setFormats(
-                        Array.from(e.target.selectedOptions, (o) => o.value)
-                      )
-                    }
-                    className="w-full bg-[#242426] text-white px-4 py-3 rounded-lg h-32"
+                    value=""
+                    onChange={handleFormatChange}
+                    className="w-full bg-[#242426] text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
+                    <option value="">Select format</option>
                     {formatOptions.map((opt) => (
                       <option key={opt} value={opt}>
                         {opt}
                       </option>
                     ))}
                   </select>
+                  <div className="flex flex-wrap gap-3 mt-4">
+                    {formats.map((format, i) => (
+                      <span
+                        key={i}
+                        className="bg-blue-600 text-white px-4 py-1 rounded-full flex items-center gap-2 text-sm"
+                      >
+                        {format}
+                        <button
+                          type="button"
+                          onClick={() => removeFormat(i)}
+                          className="ml-2 hover:text-gray-300"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
                 </div>
                 <div>
                   <label className="block text-white mb-2">Price ($)</label>
@@ -570,9 +607,10 @@ const EditUIKits = () => {
             )}
 
             {overview && (
-              <p className="text-lg text-gray-300 mb-10 leading-relaxed">
-                {overview}
-              </p>
+              <div
+                className="text-lg text-gray-300 mb-10 leading-relaxed prose max-w-none"
+                dangerouslySetInnerHTML={{ __html: overview }}
+              />
             )}
 
             {points.filter((p) => p.trim()).length > 0 && (
@@ -620,9 +658,8 @@ const EditUIKits = () => {
               <div>
                 <p className="text-lg text-gray-400 mb-3">Status</p>
                 <span
-                  className={`px-5 py-2 rounded-full text-white ${
-                    status === "active" ? "bg-green-600" : "bg-red-600"
-                  }`}
+                  className={`px-5 py-2 rounded-full text-white ${status === "active" ? "bg-green-600" : "bg-red-600"
+                    }`}
                 >
                   {status.charAt(0).toUpperCase() + status.slice(1)}
                 </span>

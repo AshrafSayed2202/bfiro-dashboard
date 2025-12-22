@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Header from "../../../components/UI/Header";
+import { Editor } from "@tinymce/tinymce-react";
+import { TINYMCE_API_KEY } from "../../../utils/env";
 const baseURL = import.meta.env.VITE_BASE_URL; // Adjusted base URL to match backend
 const EditIcons = () => {
   const { id } = useParams();
@@ -63,11 +65,14 @@ const EditIcons = () => {
         setTitle(product.title || "");
         setSubtitle(product.subtitle || "");
         setOverview(product.overview || "");
-        setPoints(
-          product.highlights
-            ? product.highlights.map((h) => h.highlight || "")
-            : []
-        );
+        const highlights = product.highlights
+          ? product.highlights.map((h) => h.highlight || "")
+          : [];
+        const paddedHighlights = [
+          ...highlights,
+          ...Array(6 - highlights.length).fill(""),
+        ];
+        setPoints(paddedHighlights);
         setFormats(
           product.formats ? product.formats.map((f) => f.text || "") : []
         );
@@ -113,18 +118,29 @@ const EditIcons = () => {
   }, [id, navigate]);
 
   const formatOptions = [
+    "SVG",
+    "PNG",
+    "React Component",
+    "Font",
     "Figma",
     "Sketch",
-    "Adobe XD",
-    "Photoshop (PSD)",
-    "Framer",
-    "Webflow",
   ];
 
   const handlePointsChange = (index, value) => {
     const newPoints = [...points];
     newPoints[index] = value;
     setPoints(newPoints);
+  };
+
+  const handleFormatChange = (e) => {
+    const val = e.target.value;
+    if (val && !formats.includes(val)) {
+      setFormats([...formats, val]);
+    }
+  };
+
+  const removeFormat = (index) => {
+    setFormats(formats.filter((_, i) => i !== index));
   };
 
   const handleTagKeyDown = (e) => {
@@ -174,13 +190,13 @@ const EditIcons = () => {
         }
       );
 
-      alert("Icon updated successfully!");
+      alert("Icons updated successfully!");
       setIsEditMode(false);
       // Optionally refetch data
       window.location.reload();
     } catch (error) {
       console.error("Error updating product:", error);
-      alert("Failed to update Icon. Please try again.");
+      alert("Failed to update Icons. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -190,7 +206,7 @@ const EditIcons = () => {
     if (deleting) return;
     if (
       !window.confirm(
-        "Are you sure you want to delete this Icon? This action cannot be undone."
+        "Are you sure you want to delete this Icons? This action cannot be undone."
       )
     )
       return;
@@ -205,11 +221,11 @@ const EditIcons = () => {
           withCredentials: true,
         }
       );
-      alert("Icon deleted successfully!");
+      alert("Icons deleted successfully!");
       navigate("/icons");
     } catch (error) {
       console.error("Error deleting product:", error);
-      alert("Failed to delete Icon. Please try again.");
+      alert("Failed to delete Icons. Please try again.");
     } finally {
       setDeleting(false);
     }
@@ -232,7 +248,7 @@ const EditIcons = () => {
 
   return (
     <div>
-      <Header title={isEditMode ? "Edit Icon" : "Icon Details"} />
+      <Header title={isEditMode ? "Edit Icons" : "Icons Details"} />
 
       <div className="mt-8 bg-[#171718CC] p-8 rounded-[20px] max-w-7xl mx-auto">
         {/* Stats */}
@@ -262,14 +278,14 @@ const EditIcons = () => {
               onClick={() => setIsEditMode(true)}
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition"
             >
-              Edit Icon
+              Edit Icons
             </button>
             <button
               onClick={handleDelete}
               disabled={deleting}
               className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition disabled:opacity-50"
             >
-              {deleting ? "Deleting..." : "Delete Icon"}
+              {deleting ? "Deleting..." : "Delete Icons"}
             </button>
           </div>
         )}
@@ -434,11 +450,19 @@ const EditIcons = () => {
 
               <div>
                 <label className="block text-white mb-2">Overview</label>
-                <textarea
+                <Editor
+                  apiKey={TINYMCE_API_KEY}
                   value={overview}
-                  onChange={(e) => setOverview(e.target.value)}
-                  rows={6}
-                  className="w-full bg-[#242426] text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  init={{
+                    height: 400,
+                    menubar: false,
+                    plugins: [
+                      "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount",
+                    ],
+                    toolbar:
+                      "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat",
+                  }}
+                  onEditorChange={(content) => setOverview(content)}
                 />
               </div>
 
@@ -469,21 +493,34 @@ const EditIcons = () => {
                     Format (multi-select)
                   </label>
                   <select
-                    multiple
-                    value={formats}
-                    onChange={(e) =>
-                      setFormats(
-                        Array.from(e.target.selectedOptions, (o) => o.value)
-                      )
-                    }
-                    className="w-full bg-[#242426] text-white px-4 py-3 rounded-lg h-32"
+                    value=""
+                    onChange={handleFormatChange}
+                    className="w-full bg-[#242426] text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
+                    <option value="">Select format</option>
                     {formatOptions.map((opt) => (
                       <option key={opt} value={opt}>
                         {opt}
                       </option>
                     ))}
                   </select>
+                  <div className="flex flex-wrap gap-3 mt-4">
+                    {formats.map((format, i) => (
+                      <span
+                        key={i}
+                        className="bg-blue-600 text-white px-4 py-1 rounded-full flex items-center gap-2 text-sm"
+                      >
+                        {format}
+                        <button
+                          type="button"
+                          onClick={() => removeFormat(i)}
+                          className="ml-2 hover:text-gray-300"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
                 </div>
                 <div>
                   <label className="block text-white mb-2">Price ($)</label>
@@ -550,7 +587,7 @@ const EditIcons = () => {
                   disabled={saving}
                   className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
                 >
-                  {saving ? "Saving..." : "Save Icon"}
+                  {saving ? "Saving..." : "Save Icons"}
                 </button>
               </div>
             </div>
@@ -572,9 +609,10 @@ const EditIcons = () => {
             )}
 
             {overview && (
-              <p className="text-lg text-gray-300 mb-10 leading-relaxed">
-                {overview}
-              </p>
+              <div
+                className="text-lg text-gray-300 mb-10 leading-relaxed prose max-w-none"
+                dangerouslySetInnerHTML={{ __html: overview }}
+              />
             )}
 
             {points.filter((p) => p.trim()).length > 0 && (
@@ -622,9 +660,8 @@ const EditIcons = () => {
               <div>
                 <p className="text-lg text-gray-400 mb-3">Status</p>
                 <span
-                  className={`px-5 py-2 rounded-full text-white ${
-                    status === "active" ? "bg-green-600" : "bg-red-600"
-                  }`}
+                  className={`px-5 py-2 rounded-full text-white ${status === "active" ? "bg-green-600" : "bg-red-600"
+                    }`}
                 >
                   {status.charAt(0).toUpperCase() + status.slice(1)}
                 </span>

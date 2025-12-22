@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Header from "../../../components/UI/Header";
+import { Editor } from "@tinymce/tinymce-react";
+import { TINYMCE_API_KEY } from "../../../utils/env";
 const baseURL = import.meta.env.VITE_BASE_URL; // Adjusted base URL to match backend
 const CreateIcons = () => {
   const navigate = useNavigate();
@@ -37,6 +39,17 @@ const CreateIcons = () => {
     const newPoints = [...points];
     newPoints[index] = value;
     setPoints(newPoints);
+  };
+
+  const handleFormatChange = (e) => {
+    const val = e.target.value;
+    if (val && !formats.includes(val)) {
+      setFormats([...formats, val]);
+    }
+  };
+
+  const removeFormat = (index) => {
+    setFormats(formats.filter((_, i) => i !== index));
   };
 
   const handleTagKeyDown = (e) => {
@@ -245,12 +258,19 @@ const CreateIcons = () => {
 
         <div className="mb-8">
           <label className="block text-white mb-2">Overview</label>
-          <textarea
+          <Editor
+            apiKey={TINYMCE_API_KEY}
             value={overview}
-            onChange={(e) => setOverview(e.target.value)}
-            rows={6}
-            className="w-full bg-[#242426] text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Full description of the template..."
+            init={{
+              height: 400,
+              menubar: false,
+              plugins: [
+                "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount",
+              ],
+              toolbar:
+                "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat",
+            }}
+            onEditorChange={(content) => setOverview(content)}
           />
         </div>
 
@@ -278,19 +298,34 @@ const CreateIcons = () => {
               Format (multi-select)
             </label>
             <select
-              multiple
-              value={formats}
-              onChange={(e) =>
-                setFormats(Array.from(e.target.selectedOptions, (o) => o.value))
-              }
-              className="w-full bg-[#242426] text-white px-4 py-3 rounded-lg h-32"
+              value=""
+              onChange={handleFormatChange}
+              className="w-full bg-[#242426] text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
+              <option value="">Select format</option>
               {formatOptions.map((opt) => (
                 <option key={opt} value={opt}>
                   {opt}
                 </option>
               ))}
             </select>
+            <div className="flex flex-wrap gap-3 mt-4">
+              {formats.map((format, i) => (
+                <span
+                  key={i}
+                  className="bg-blue-600 text-white px-4 py-1 rounded-full flex items-center gap-2 text-sm"
+                >
+                  {format}
+                  <button
+                    type="button"
+                    onClick={() => removeFormat(i)}
+                    className="ml-2 hover:text-gray-300"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
           </div>
 
           <div>
