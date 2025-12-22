@@ -16,6 +16,7 @@ const EditUIKits = () => {
   const [points, setPoints] = useState([]);
   const [formats, setFormats] = useState([]);
   const [price, setPrice] = useState("");
+  const [discount, setDiscount] = useState("");
   const [status, setStatus] = useState("active");
   const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState("");
@@ -44,7 +45,9 @@ const EditUIKits = () => {
         setLoading(true);
         const response = await axios.get(
           `${baseURL}fetch/site/products/getProduct.php?id=${id}`,
-          { withCredentials: true }
+          {
+            withCredentials: true,
+          }
         );
         const result = response.data;
 
@@ -75,9 +78,8 @@ const EditUIKits = () => {
           product.formats ? product.formats.map((f) => f.text || "") : []
         );
 
-        const finalPrice =
-          product.price - (product.discount || 0) || product.price || 0;
-        setPrice(finalPrice.toString());
+        setPrice(product.price.toString() || "");
+        setDiscount(product.discount.toString() || "");
 
         setStatus(product.status || "active");
         setTags(product.labels ? product.labels.map((l) => l.text || "") : []);
@@ -157,6 +159,15 @@ const EditUIKits = () => {
 
   const handleSave = async () => {
     if (saving) return;
+
+    const priceNum = parseFloat(price) || 0;
+    const discountNum = parseFloat(discount) || 0;
+
+    if (discountNum > priceNum) {
+      alert("Discount cannot be more than price.");
+      return;
+    }
+
     setSaving(true);
 
     try {
@@ -170,6 +181,7 @@ const EditUIKits = () => {
       );
       formData.append("formats", formats.join(","));
       formData.append("price", price);
+      formData.append("discount", discount);
       formData.append("status", status);
       formData.append("labels", tags.join(",")); // assuming tags are categories/labels
 
@@ -229,7 +241,8 @@ const EditUIKits = () => {
     }
   };
 
-  const totalIncome = solds * (parseFloat(price) || 0);
+  const finalPrice = parseFloat(price) - parseFloat(discount) || parseFloat(price) || 0;
+  const totalIncome = solds * finalPrice;
 
   if (loading) {
     return (
@@ -250,7 +263,7 @@ const EditUIKits = () => {
 
       <div className="mt-8 bg-[#171718CC] p-8 rounded-[20px] max-w-7xl mx-auto">
         {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
           <div className="bg-[#242426] p-6 rounded-[20px] text-center">
             <p className="text-gray-400 text-lg">Upload Date</p>
             <p className="text-3xl font-bold text-white mt-2">{date}</p>
@@ -260,8 +273,12 @@ const EditUIKits = () => {
             <p className="text-3xl font-bold text-white mt-2">{solds}</p>
           </div>
           <div className="bg-[#242426] p-6 rounded-[20px] text-center">
-            <p className="text-gray-400 text-lg">Price</p>
-            <p className="text-3xl font-bold text-white mt-2">${price}</p>
+            <p className="text-gray-400 text-lg">Discount</p>
+            <p className="text-3xl font-bold text-white mt-2">${discount || 0}</p>
+          </div>
+          <div className="bg-[#242426] p-6 rounded-[20px] text-center">
+            <p className="text-gray-400 text-lg">Final Price</p>
+            <p className="text-3xl font-bold text-white mt-2">${finalPrice}</p>
           </div>
           <div className="bg-[#242426] p-6 rounded-[20px] text-center">
             <p className="text-gray-400 text-lg">Total Income</p>
@@ -485,7 +502,7 @@ const EditUIKits = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div>
                   <label className="block text-white mb-2">
                     Format (multi-select)
@@ -527,6 +544,16 @@ const EditUIKits = () => {
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
                     className="w-full bg-[#242426] text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-white mb-2">Discount ($)</label>
+                  <input
+                    type="number"
+                    value={discount}
+                    onChange={(e) => setDiscount(e.target.value)}
+                    className="w-full bg-[#242426] text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="0"
                   />
                 </div>
                 <div>
@@ -628,7 +655,7 @@ const EditUIKits = () => {
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
               <div>
                 <p className="text-lg text-gray-400 mb-3">Formats</p>
                 <div className="flex flex-wrap gap-3">
@@ -654,6 +681,10 @@ const EditUIKits = () => {
                     </span>
                   ))}
                 </div>
+              </div>
+              <div>
+                <p className="text-lg text-gray-400 mb-3">Discount</p>
+                <p className="text-2xl text-white">${discount || 0}</p>
               </div>
               <div>
                 <p className="text-lg text-gray-400 mb-3">Status</p>

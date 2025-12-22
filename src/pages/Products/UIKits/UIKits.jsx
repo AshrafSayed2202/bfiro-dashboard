@@ -39,22 +39,22 @@ const UIKits = () => {
 
       const uiKits = response.data.data || [];
 
-      // Transform data to match your table
-      const transformedData = uiKits.map((kit) => ({
-        id: kit.id,
-        date: kit.releaseDate ? kit.releaseDate.split(" ")[0] : "N/A", // Fix: Use releaseDate
-        name: kit.title,
-        format: kit.formats
-          ? kit.formats.map((f) => f.text).join(", ")
-          : "Figma, PSD", // Fix: Handle array of objects
-        solds: kit.sales_count || 0, // Note: sales_count missing in backend; defaults to 0
-        price: kit.price - (kit.discount || 0), // Fix: Calculate final price (assumes flat discount)
-        status: kit.status,
+      const transformedData = uiKits.map((item) => ({
+        id: item.id,
+        date: item.releaseDate ? item.releaseDate.split(" ")[0] : "N/A",
+        name: item.title,
+        format: item.formats
+          ? item.formats.map((f) => f.text).join(", ")
+          : "Figma, PSD",
+        solds: item.solds || 0,
+        originalPrice: item.price || 0,
+        discount: item.discount || 0,
+        finalPrice: (item.price || 0) - (item.discount || 0),
+        status: item.status,
       }));
 
       setData(transformedData);
 
-      // Calculate stats
       const total = transformedData.length;
       const active = transformedData.filter(
         (d) => d.status === "active"
@@ -63,7 +63,7 @@ const UIKits = () => {
       const sold = transformedData.reduce((sum, d) => sum + d.solds, 0);
       const soldFrom = transformedData.filter((d) => d.solds > 0).length;
       const income = transformedData.reduce(
-        (sum, d) => sum + d.solds * d.price,
+        (sum, d) => sum + d.solds * d.finalPrice,
         0
       );
 
@@ -93,14 +93,29 @@ const UIKits = () => {
     { field: "format", headerName: "Format", width: 130 },
     { field: "solds", headerName: "Solds Number", width: 130 },
     {
-      field: "price",
       headerName: "Price",
-      width: 110,
-      valueFormatter: (params) => `$${params.value.toFixed(2)}`, // Fix: Use toFixed for decimals
+      width: 150,
+      cellRenderer: (params) => {
+        const original = params.data.originalPrice;
+        const discount = params.data.discount;
+        const finalPrice = params.data.finalPrice;
+        if (discount > 0) {
+          return (
+            <span>
+              <span className="line-through text-gray-500 mr-2">
+                ${original.toFixed(2)}
+              </span>
+              ${finalPrice.toFixed(2)}
+            </span>
+          );
+        } else {
+          return `$${finalPrice.toFixed(2)}`;
+        }
+      },
     },
     {
       headerName: "Total Income",
-      valueGetter: (params) => params.data.solds * params.data.price,
+      valueGetter: (params) => params.data.solds * params.data.finalPrice,
       valueFormatter: (params) => `$${params.value.toFixed(2)}`,
       width: 140,
     },
@@ -110,11 +125,10 @@ const UIKits = () => {
       width: 110,
       cellRenderer: (params) => (
         <span
-          className={`px-3 py-1 rounded-full text-xs font-medium ${
-            params.value === "active"
-              ? "bg-green-900 text-green-300"
-              : "bg-gray-700 text-gray-300"
-          }`}
+          className={`px-3 py-1 rounded-full text-xs font-medium ${params.value === "active"
+            ? "bg-green-900 text-green-300"
+            : "bg-gray-700 text-gray-300"
+            }`}
         >
           {params.value}
         </span>

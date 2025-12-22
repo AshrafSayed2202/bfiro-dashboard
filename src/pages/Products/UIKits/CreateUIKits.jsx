@@ -14,6 +14,7 @@ const CreateUIKits = () => {
   const [points, setPoints] = useState(["", "", "", "", "", ""]);
   const [formats, setFormats] = useState([]);
   const [price, setPrice] = useState("");
+  const [discount, setDiscount] = useState("");
   const [status, setStatus] = useState("active");
   const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState("");
@@ -71,6 +72,15 @@ const CreateUIKits = () => {
       alert("Title is required.");
       return;
     }
+
+    const priceNum = parseFloat(price) || 0;
+    const discountNum = parseFloat(discount) || 0;
+
+    if (discountNum > priceNum) {
+      alert("Discount cannot be more than price.");
+      return;
+    }
+
     setSaving(true);
 
     try {
@@ -84,6 +94,7 @@ const CreateUIKits = () => {
       );
       formData.append("formats", formats.join(","));
       formData.append("price", price);
+      formData.append("discount", discount);
       formData.append("status", status);
       formData.append("labels", tags.join(","));
       formData.append("type", "UI Kits"); // Fixed type
@@ -292,7 +303,7 @@ const CreateUIKits = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div>
             <label className="block text-white mb-2">
               Format (multi-select)
@@ -336,6 +347,17 @@ const CreateUIKits = () => {
               onChange={(e) => setPrice(e.target.value)}
               className="w-full bg-[#242426] text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="99"
+            />
+          </div>
+
+          <div>
+            <label className="block text-white mb-2">Discount ($)</label>
+            <input
+              type="number"
+              value={discount}
+              onChange={(e) => setDiscount(e.target.value)}
+              className="w-full bg-[#242426] text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="0"
             />
           </div>
 

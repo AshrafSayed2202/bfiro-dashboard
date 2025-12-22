@@ -46,8 +46,10 @@ const Illustrations = () => {
         format: item.formats
           ? item.formats.map((f) => f.text).join(", ")
           : "SVG, AI, PNG",
-        solds: item.sales_count || 0, // Note: sales_count missing in backend; defaults to 0
-        price: item.price - (item.discount || 0),
+        solds: item.solds || 0,
+        originalPrice: item.price || 0,
+        discount: item.discount || 0,
+        finalPrice: (item.price || 0) - (item.discount || 0),
         status: item.status,
       }));
 
@@ -61,7 +63,7 @@ const Illustrations = () => {
       const sold = transformedData.reduce((sum, d) => sum + d.solds, 0);
       const soldFrom = transformedData.filter((d) => d.solds > 0).length;
       const income = transformedData.reduce(
-        (sum, d) => sum + d.solds * d.price,
+        (sum, d) => sum + d.solds * d.finalPrice,
         0
       );
 
@@ -91,14 +93,29 @@ const Illustrations = () => {
     { field: "format", headerName: "Format", width: 130 },
     { field: "solds", headerName: "Solds Number", width: 130 },
     {
-      field: "price",
       headerName: "Price",
-      width: 110,
-      valueFormatter: (params) => `$${params.value.toFixed(2)}`,
+      width: 150,
+      cellRenderer: (params) => {
+        const original = params.data.originalPrice;
+        const discount = params.data.discount;
+        const finalPrice = params.data.finalPrice;
+        if (discount > 0) {
+          return (
+            <span>
+              <span className="line-through text-gray-500 mr-2">
+                ${original.toFixed(2)}
+              </span>
+              ${finalPrice.toFixed(2)}
+            </span>
+          );
+        } else {
+          return `$${finalPrice.toFixed(2)}`;
+        }
+      },
     },
     {
       headerName: "Total Income",
-      valueGetter: (params) => params.data.solds * params.data.price,
+      valueGetter: (params) => params.data.solds * params.data.finalPrice,
       valueFormatter: (params) => `$${params.value.toFixed(2)}`,
       width: 140,
     },
@@ -108,11 +125,10 @@ const Illustrations = () => {
       width: 110,
       cellRenderer: (params) => (
         <span
-          className={`px-3 py-1 rounded-full text-xs font-medium ${
-            params.value === "active"
-              ? "bg-green-900 text-green-300"
-              : "bg-gray-700 text-gray-300"
-          }`}
+          className={`px-3 py-1 rounded-full text-xs font-medium ${params.value === "active"
+            ? "bg-green-900 text-green-300"
+            : "bg-gray-700 text-gray-300"
+            }`}
         >
           {params.value}
         </span>
