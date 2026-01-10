@@ -1,13 +1,67 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import Header from "../../../components/UI/Header";
+import Header from "../../components/UI/Header";
 import { Editor } from "@tinymce/tinymce-react";
-import { TINYMCE_API_KEY } from "../../../utils/env";
-const baseURL = import.meta.env.VITE_BASE_URL; // Adjusted base URL to match backend
-const EditFonts = () => {
+import { TINYMCE_API_KEY } from "../../utils/env";
+
+const baseURL = import.meta.env.VITE_BASE_URL;
+const storageUrl = import.meta.env.VITE_BASE_STORAGE_URL;
+
+const productConfigs = {
+  "ui-kits": {
+    apiType: "UI Kits",
+    title: "UI Kit",
+    path: "ui-kits",
+    formatLabel: "Format",
+    formatOptions: ["Figma", "Sketch", "XD", "Photoshop", "Framer"],
+    fileAccept: ".zip,.rar,.7z",
+    itemName: "UI Kit",
+  },
+  illustrations: {
+    apiType: "Illustrations",
+    title: "Illustration",
+    path: "illustrations",
+    formatLabel: "Format",
+    formatOptions: ["Illustrator", "Photoshop", "Figma", "Sketch", "XD"],
+    fileAccept: ".zip,.rar,.7z",
+    itemName: "Illustration",
+  },
+  icons: {
+    apiType: "Icons",
+    title: "Icon Set",
+    path: "icons",
+    formatLabel: "Format",
+    formatOptions: ["Illustrator", "Photoshop", "Figma", "Sketch", "XD"],
+    fileAccept: ".zip,.rar,.7z",
+    itemName: "Icon Set",
+  },
+  fonts: {
+    apiType: "Fonts",
+    title: "Font Family",
+    path: "fonts",
+    formatLabel: "Format",
+    formatOptions: ["Any format"],
+    fileAccept: ".zip,.rar,.7z",
+    itemName: "Font Family",
+  },
+  code: {
+    apiType: "Coded Templates",
+    title: "Product",
+    path: "code",
+    formatLabel: "Framework",
+    formatOptions: ["React", "Swift"],
+    fileAccept: ".zip,.rar,.7z",
+    itemName: "Product",
+  },
+};
+
+const EditProduct = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+
+  const [config, setConfig] = useState(null);
+
   const [isEditMode, setIsEditMode] = useState(false);
 
   const [title, setTitle] = useState("");
@@ -52,16 +106,21 @@ const EditFonts = () => {
         const result = response.data;
 
         if (result.status !== 1 || !result.data) {
-          navigate("/fonts");
+          navigate("/"); // Or dashboard
           return;
         }
 
         const product = result.data;
+        const typeKey = Object.keys(productConfigs).find(
+          (key) => productConfigs[key].apiType === product.type
+        );
 
-        if (product.type !== "Fonts") {
-          navigate("/fonts");
+        if (!typeKey) {
+          navigate("/");
           return;
         }
+
+        setConfig(productConfigs[typeKey]);
 
         setTitle(product.title || "");
         setSubtitle(product.subtitle || "");
@@ -86,7 +145,7 @@ const EditFonts = () => {
         setDate(product.releaseDate ? product.releaseDate.split(" ")[0] : "");
         setSolds(product.solds || 0);
 
-        // Images mapping
+        // Images
         const images = product.images || [];
         setCurrentCoverUrl(
           images.find((img) => img.purpose === "cover")?.url || ""
@@ -103,12 +162,12 @@ const EditFonts = () => {
           images.find((img) => img.purpose === "bg")?.url || ""
         );
 
-        // Template file (assuming first file is the main template)
+        // Files
         const files = product.files || [];
         setCurrentTemplateFileName(files[0]?.storage_path || "");
       } catch (error) {
         console.error("Error fetching product:", error);
-        navigate("/fonts");
+        navigate("/");
       } finally {
         setLoading(false);
       }
@@ -117,7 +176,11 @@ const EditFonts = () => {
     fetchProduct();
   }, [id, navigate]);
 
-  const formatOptions = ["Variable", "OTF", "TTF", "WOFF/WOFF2"];
+  if (loading || !config) {
+    return (
+      <div className="text-white text-center mt-40 text-4xl">Loading...</div>
+    );
+  }
 
   const handlePointsChange = (index, value) => {
     const newPoints = [...points];
@@ -176,7 +239,7 @@ const EditFonts = () => {
       formData.append("price", price);
       formData.append("discount", discount);
       formData.append("status", status);
-      formData.append("labels", tags.join(",")); // assuming tags are categories/labels
+      formData.append("labels", tags.join(","));
 
       if (templateFile) formData.append("template_file", templateFile);
       if (thumbnail) formData.append("thumbnail", thumbnail);
@@ -193,13 +256,12 @@ const EditFonts = () => {
         }
       );
 
-      alert("Font updated successfully!");
+      alert(`${config.itemName} updated successfully!`);
       setIsEditMode(false);
-      // Optionally refetch data
       window.location.reload();
     } catch (error) {
-      console.error("Error updating product:", error);
-      alert("Failed to update Font. Please try again.");
+      console.error(`Error updating ${config.title.toLowerCase()}:`, error);
+      alert(`Failed to update ${config.itemName}. Please try again.`);
     } finally {
       setSaving(false);
     }
@@ -209,7 +271,7 @@ const EditFonts = () => {
     if (deleting) return;
     if (
       !window.confirm(
-        "Are you sure you want to delete this Font? This action cannot be undone."
+        `Are you sure you want to delete this ${config.itemName.toLowerCase()}? This action cannot be undone.`
       )
     )
       return;
@@ -224,24 +286,41 @@ const EditFonts = () => {
           withCredentials: true,
         }
       );
-      alert("Font deleted successfully!");
-      navigate("/fonts");
+      alert(`${config.itemName} deleted successfully!`);
+      navigate(`/${config.path}`);
     } catch (error) {
-      console.error("Error deleting product:", error);
-      alert("Failed to delete Font. Please try again.");
+      console.error(`Error deleting ${config.title.toLowerCase()}:`, error);
+      alert(`Failed to delete ${config.itemName}. Please try again.`);
     } finally {
       setDeleting(false);
     }
   };
 
-  const finalPrice = parseFloat(price) - parseFloat(discount) || parseFloat(price) || 0;
+  const finalPrice = (parseFloat(price) - parseFloat(discount)) || parseFloat(price) || 0;
   const totalIncome = solds * finalPrice;
 
-  if (loading) {
-    return (
-      <div className="text-white text-center mt-40 text-4xl">Loading...</div>
-    );
-  }
+  const formatPrefix = {
+    "any format": "formats",
+    "illustrator": "ai",
+    "powerpoint": "powerpoint",
+    "3d studio max": "3ds",
+    "invision": "invision",
+    "react": "react",
+    "after effects": "ae",
+    "keynote": "keynote",
+    "sketch": "sketch",
+    "blender": "blender",
+    "lottie": "lottie",
+    "swift": "swift",
+    "cinema 4d": "c4d",
+    "lunacy": "lunacy",
+    "xcode": "xcode",
+    "figma": "figma",
+    "maya": "maya",
+    "xd": "xd",
+    "framer": "framer",
+    "photoshop": "ps",
+  };
 
   if (!title)
     return (
@@ -252,7 +331,7 @@ const EditFonts = () => {
 
   return (
     <div>
-      <Header title={isEditMode ? "Edit Font" : "Font Details"} />
+      <Header title={isEditMode ? `Edit ${config.itemName}` : `${config.itemName} Details`} />
 
       <div className="mt-8 bg-[#171718CC] p-8 rounded-[20px] max-w-7xl mx-auto">
         {/* Stats */}
@@ -267,15 +346,21 @@ const EditFonts = () => {
           </div>
           <div className="bg-[#242426] p-6 rounded-[20px] text-center">
             <p className="text-gray-400 text-lg">Discount</p>
-            <p className="text-3xl font-bold text-white mt-2">${discount || 0}</p>
+            <p className="text-3xl font-bold text-white mt-2">
+              {`$${parseFloat(discount || 0).toFixed(2)}`}
+            </p>
           </div>
           <div className="bg-[#242426] p-6 rounded-[20px] text-center">
             <p className="text-gray-400 text-lg">Final Price</p>
-            <p className="text-3xl font-bold text-white mt-2">${finalPrice}</p>
+            <p className="text-3xl font-bold text-white mt-2">
+              {`$${finalPrice.toFixed(2)}`}
+            </p>
           </div>
           <div className="bg-[#242426] p-6 rounded-[20px] text-center">
             <p className="text-gray-400 text-lg">Total Income</p>
-            <p className="text-3xl font-bold text-white mt-2">${totalIncome}</p>
+            <p className="text-3xl font-bold text-white mt-2">
+              {`$${totalIncome.toFixed(2)}`}
+            </p>
           </div>
         </div>
 
@@ -286,14 +371,14 @@ const EditFonts = () => {
               onClick={() => setIsEditMode(true)}
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition"
             >
-              Edit Font
+              Edit {config.itemName}
             </button>
             <button
               onClick={handleDelete}
               disabled={deleting}
               className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition disabled:opacity-50"
             >
-              {deleting ? "Deleting..." : "Delete Font"}
+              {deleting ? "Deleting..." : `Delete ${config.itemName}`}
             </button>
           </div>
         )}
@@ -316,7 +401,7 @@ const EditFonts = () => {
                 </p>
                 <input
                   type="file"
-                  accept=".zip,.rar,.7z"
+                  accept={config.fileAccept}
                   onChange={(e) => setTemplateFile(e.target.files[0] || null)}
                   className="block w-full text-sm text-gray-300 file:mr-4 file:py-3 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-600 file:text-white"
                 />
@@ -498,15 +583,15 @@ const EditFonts = () => {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div>
                   <label className="block text-white mb-2">
-                    Format (multi-select)
+                    {config.formatLabel} (multi-select)
                   </label>
                   <select
                     value=""
                     onChange={handleFormatChange}
                     className="w-full bg-[#242426] text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="">Select format</option>
-                    {formatOptions.map((opt) => (
+                    <option value="">Select {config.formatLabel.toLowerCase()}</option>
+                    {config.formatOptions.map((opt) => (
                       <option key={opt} value={opt}>
                         {opt}
                       </option>
@@ -605,7 +690,7 @@ const EditFonts = () => {
                   disabled={saving}
                   className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
                 >
-                  {saving ? "Saving..." : "Save Font"}
+                  {saving ? "Saving..." : `Save ${config.itemName}`}
                 </button>
               </div>
             </div>
@@ -650,16 +735,30 @@ const EditFonts = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
               <div>
-                <p className="text-lg text-gray-400 mb-3">Formats</p>
+                <p className="text-lg text-gray-400 mb-3">{config.formatLabel}s</p>
                 <div className="flex flex-wrap gap-3">
-                  {formats.map((f, i) => (
-                    <span
-                      key={i}
-                      className="bg-blue-600 text-white px-4 py-1 rounded-full text-sm"
-                    >
-                      {f}
-                    </span>
-                  ))}
+                  {formats.map((f, i) => {
+                    const lowerText = f.toLowerCase();
+                    const prefix = formatPrefix[lowerText] || lowerText;
+                    let fileName;
+                    if (lowerText === "any format") {
+                      fileName = "formats.svg";
+                    } else {
+                      fileName = `${prefix}-prog.svg`;
+                    }
+                    return (
+                      <div
+                        key={i}
+                        className="bg-[#424242] size-[40px] rounded-full flex items-center justify-center"
+                      >
+                        <img
+                          src={storageUrl + `Formats/${fileName}`}
+                          className="size-[20px]"
+                          alt={f}
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
               <div>
@@ -677,13 +776,12 @@ const EditFonts = () => {
               </div>
               <div>
                 <p className="text-lg text-gray-400 mb-3">Discount</p>
-                <p className="text-2xl text-white">${discount || 0}</p>
+                <p className="text-2xl text-white">{`$${parseFloat(discount || 0).toFixed(2)}`}</p>
               </div>
               <div>
                 <p className="text-lg text-gray-400 mb-3">Status</p>
                 <span
-                  className={`px-5 py-2 rounded-full text-white ${status === "active" ? "bg-green-600" : "bg-red-600"
-                    }`}
+                  className={`px-5 py-2 rounded-full text-white ${status === "active" ? "bg-green-600" : "bg-red-600"}`}
                 >
                   {status.charAt(0).toUpperCase() + status.slice(1)}
                 </span>
@@ -752,4 +850,4 @@ const EditFonts = () => {
   );
 };
 
-export default EditFonts;
+export default EditProduct;

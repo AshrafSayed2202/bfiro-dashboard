@@ -1,11 +1,63 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import Header from "../../../components/UI/Header";
+import Header from "../../components/UI/Header";
 import { Editor } from "@tinymce/tinymce-react";
-import { TINYMCE_API_KEY } from "../../../utils/env";
-const baseURL = import.meta.env.VITE_BASE_URL; // Adjusted base URL to match backend
-const CreateFonts = () => {
+import { TINYMCE_API_KEY } from "../../utils/env";
+
+const baseURL = import.meta.env.VITE_BASE_URL;
+
+const productConfigs = {
+  "ui-kits": {
+    apiType: "UI Kits",
+    title: "UI Kit",
+    path: "ui-kits",
+    formatLabel: "Format",
+    formatOptions: ["Figma", "Sketch", "XD", "Photoshop", "Framer"],
+    fileAccept: ".zip,.rar,.7z",
+    itemName: "UI Kit",
+  },
+  illustrations: {
+    apiType: "Illustrations",
+    title: "Illustration",
+    path: "illustrations",
+    formatLabel: "Format",
+    formatOptions: ["Illustrator", "Photoshop", "Figma", "Sketch", "XD"],
+    fileAccept: ".zip,.rar,.7z",
+    itemName: "Illustration",
+  },
+  icons: {
+    apiType: "Icons",
+    title: "Icon Set",
+    path: "icons",
+    formatLabel: "Format",
+    formatOptions: ["Illustrator", "Photoshop", "Figma", "Sketch", "XD"],
+    fileAccept: ".zip,.rar,.7z",
+    itemName: "Icon Set",
+  },
+  fonts: {
+    apiType: "Fonts",
+    title: "Font Family",
+    path: "fonts",
+    formatLabel: "Format",
+    formatOptions: ["Any format"],
+    fileAccept: ".zip,.rar,.7z",
+    itemName: "Font Family",
+  },
+  code: {
+    apiType: "Coded Templates",
+    title: "Product",
+    path: "code",
+    formatLabel: "Framework",
+    formatOptions: ["React", "Swift"],
+    fileAccept: ".zip,.rar,.7z",
+    itemName: "Product",
+  },
+};
+
+const CreateProduct = ({ productType }) => {
+  const config = productConfigs[productType];
+
   const navigate = useNavigate();
 
   const [title, setTitle] = useState("");
@@ -27,7 +79,9 @@ const CreateFonts = () => {
 
   const [saving, setSaving] = useState(false);
 
-  const formatOptions = ["Variable", "OTF", "TTF", "WOFF/WOFF2"];
+  if (!config) {
+    return <div>Invalid product type</div>;
+  }
 
   const handlePointsChange = (index, value) => {
     const newPoints = [...points];
@@ -45,6 +99,7 @@ const CreateFonts = () => {
   const removeFormat = (index) => {
     setFormats(formats.filter((_, i) => i !== index));
   };
+
   const handleTagKeyDown = (e) => {
     if (e.key === "Enter" && tagInput.trim()) {
       e.preventDefault();
@@ -89,7 +144,7 @@ const CreateFonts = () => {
       formData.append("discount", discount);
       formData.append("status", status);
       formData.append("labels", tags.join(","));
-      formData.append("type", "Fonts"); // Fixed type
+      formData.append("type", config.apiType);
 
       if (templateFile) formData.append("template_file", templateFile);
       if (thumbnail) formData.append("thumbnail", thumbnail);
@@ -106,11 +161,11 @@ const CreateFonts = () => {
         }
       );
 
-      alert("Font Family created successfully!");
-      navigate("/fonts");
+      alert(`${config.itemName} created successfully!`);
+      navigate(`/${config.path}`);
     } catch (error) {
-      console.error("Error creating product:", error);
-      alert("Failed to create Font Family. Please try again.");
+      console.error(`Error creating ${config.title.toLowerCase()}:`, error);
+      alert(`Failed to create ${config.itemName}. Please try again.`);
     } finally {
       setSaving(false);
     }
@@ -118,7 +173,7 @@ const CreateFonts = () => {
 
   return (
     <div>
-      <Header title="Create New Font Family" />
+      <Header title={`Create New ${config.itemName}`} />
 
       <div className="mt-8 bg-[#171718CC] p-8 rounded-[20px] max-w-5xl mx-auto">
         <h2 className="text-2xl font-semibold text-white mb-8">
@@ -132,7 +187,7 @@ const CreateFonts = () => {
           </label>
           <input
             type="file"
-            accept=".zip,.rar,.7z"
+            accept={config.fileAccept}
             onChange={(e) => setTemplateFile(e.target.files[0])}
             className="block w-full text-sm text-gray-300 file:mr-4 file:py-3 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-600 file:text-white hover:file:bg-blue-700"
           />
@@ -141,7 +196,7 @@ const CreateFonts = () => {
           )}
         </div>
 
-        {/* Thumbnail */}
+        {/* Thumbnail and Cover */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           <div>
             <label className="block text-white text-lg mb-3">
@@ -162,7 +217,6 @@ const CreateFonts = () => {
             )}
           </div>
 
-          {/* Cover */}
           <div>
             <label className="block text-white text-lg mb-3">
               Cover Photo (1920x440 recommended)
@@ -244,7 +298,7 @@ const CreateFonts = () => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="w-full bg-[#242426] text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="e.g. Dashboard Font Family"
+              placeholder={`e.g. Dashboard ${config.title}`}
             />
           </div>
           <div>
@@ -298,15 +352,15 @@ const CreateFonts = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div>
             <label className="block text-white mb-2">
-              Format (multi-select)
+              {config.formatLabel} (multi-select)
             </label>
             <select
               value=""
               onChange={handleFormatChange}
               className="w-full bg-[#242426] text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="">Select format</option>
-              {formatOptions.map((opt) => (
+              <option value="">Select {config.formatLabel.toLowerCase()}</option>
+              {config.formatOptions.map((opt) => (
                 <option key={opt} value={opt}>
                   {opt}
                 </option>
@@ -398,7 +452,7 @@ const CreateFonts = () => {
 
         <div className="flex gap-4 justify-end">
           <button
-            onClick={() => navigate("/fonts")}
+            onClick={() => navigate(`/${config.path}`)}
             disabled={saving}
             className="px-8 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition disabled:opacity-50"
           >
@@ -409,7 +463,7 @@ const CreateFonts = () => {
             disabled={saving}
             className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
           >
-            {saving ? "Saving..." : "Save Font Family"}
+            {saving ? "Saving..." : `Save ${config.itemName}`}
           </button>
         </div>
       </div>
@@ -417,4 +471,4 @@ const CreateFonts = () => {
   );
 };
 
-export default CreateFonts;
+export default CreateProduct;

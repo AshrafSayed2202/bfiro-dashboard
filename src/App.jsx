@@ -4,24 +4,9 @@ import Signup from "./pages/Signup";
 import PasswordReset from "./pages/PasswordReset";
 import DashboardLayout from "./components/DashboardLayout";
 import DashboardHome from "./pages/DashboardHome";
-import UIKits from "./pages/Products/UIKits/UIKits";
-import CreateUIKits from "./pages/Products/UIKits/CreateUIKits";
-import Code from "./pages/Products/Code/Code";
-import Icons from "./pages/Products/Icons/Icons";
-import Illustrations from "./pages/Products/Illustrations/Illustrations";
-import Fonts from "./pages/Products/Fonts/Fonts";
-import Users from "./pages/Users";
-import EmptyPlaceholder from "./components/EmptyPlaceholder";
-import "./assets/styles/main.css";
-import CreateCode from "./pages/Products/Code/CreateCode";
-import CreateIllustrations from "./pages/Products/Illustrations/CreateIllustrations";
-import CreateIcons from "./pages/Products/Icons/CreateIcons";
-import CreateFonts from "./pages/Products/Fonts/CreateFonts";
-import EditUIKits from "./pages/Products/UIKits/EditUIKits";
-import EditIllustrations from "./pages/Products/Illustrations/EditIllustrations";
-import EditIcons from "./pages/Products/Icons/EditIcons";
-import EditFonts from "./pages/Products/Fonts/EditFonts";
-import EditCodes from "./pages/Products/Code/EditCodes";
+import ProductList from "./pages/Products/ProductList";
+import CreateProduct from "./pages/Products/CreateProduct";
+import EditProduct from "./pages/Products/EditProduct.jsx";
 import Pricing from "./pages/Pricing/Pricing";
 import Contacts from "./pages/Contacts/Contacts";
 import YearlyAccess from "./pages/YearlyAccess/YearlyAccess";
@@ -32,6 +17,10 @@ import Camp from "./pages/UxCamp/Camp";
 import AuthRoute from "./utils/AuthRoute.jsx";
 import { useSelector } from "react-redux";
 import ProtectedRoute from "./utils/ProtectedRoute.jsx";
+import Users from "./pages/Users";
+import EmptyPlaceholder from "./components/EmptyPlaceholder";
+import "./assets/styles/main.css";
+
 function App() {
   const { user } = useSelector((state) => state.auth);
   const isAuthenticated = user;
@@ -65,27 +54,27 @@ function App() {
         <Route
           path="/"
           element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <ProtectedRoute isAuthenticated={true}>
               <DashboardLayout />
             </ProtectedRoute>
           }
         >
           <Route index element={<DashboardHome />} />
-          <Route path="ui-kits" element={<UIKits />} />
-          <Route path="ui-kits/:id" element={<EditUIKits />} />
-          <Route path="ui-kits/new" element={<CreateUIKits />} />
-          <Route path="code" element={<Code />} />
-          <Route path="code/:id" element={<EditCodes />} />
-          <Route path="code/new" element={<CreateCode />} />
-          <Route path="illustrations" element={<Illustrations />} />
-          <Route path="illustrations/:id" element={<EditIllustrations />} />
-          <Route path="illustrations/new" element={<CreateIllustrations />} />
-          <Route path="icons" element={<Icons />} />
-          <Route path="icons/:id" element={<EditIcons />} />
-          <Route path="icons/new" element={<CreateIcons />} />
-          <Route path="fonts" element={<Fonts />} />
-          <Route path="fonts/:id" element={<EditFonts />} />
-          <Route path="fonts/new" element={<CreateFonts />} />
+          <Route path="ui-kits" element={<ProductList productType="ui-kits" />} />
+          <Route path="ui-kits/:id" element={<EditProduct />} />
+          <Route path="ui-kits/new" element={<CreateProduct productType="ui-kits" />} />
+          <Route path="code" element={<ProductList productType="code" />} />
+          <Route path="code/:id" element={<EditProduct />} />
+          <Route path="code/new" element={<CreateProduct productType="code" />} />
+          <Route path="illustrations" element={<ProductList productType="illustrations" />} />
+          <Route path="illustrations/:id" element={<EditProduct />} />
+          <Route path="illustrations/new" element={<CreateProduct productType="illustrations" />} />
+          <Route path="icons" element={<ProductList productType="icons" />} />
+          <Route path="icons/:id" element={<EditProduct />} />
+          <Route path="icons/new" element={<CreateProduct productType="icons" />} />
+          <Route path="fonts" element={<ProductList productType="fonts" />} />
+          <Route path="fonts/:id" element={<EditProduct />} />
+          <Route path="fonts/new" element={<CreateProduct productType="fonts" />} />
           <Route path="pricing" element={<Pricing />} />
           <Route path="contact-us" element={<Contacts />} />
           {/* <Route path="ux-camp/pricing" element={<EmptyPlaceholder title="UX Camp Pricing" />} /> */}
