@@ -137,7 +137,7 @@ const CreateProduct = ({ productType }) => {
       formData.append("overview", overview);
       formData.append(
         "highlights",
-        JSON.stringify(points.filter((p) => p.trim()))
+        JSON.stringify(points.filter((p) => p.trim())),
       );
       formData.append("formats", formats.join(","));
       formData.append("price", price);
@@ -147,9 +147,9 @@ const CreateProduct = ({ productType }) => {
       formData.append("type", config.apiType);
 
       if (templateFile) formData.append("template_file", templateFile);
-      if (thumbnail) formData.append("thumbnail", thumbnail);
+      if (thumbnail) formData.append("bg", thumbnail);
       if (cover) formData.append("cover", cover);
-      if (previewPhoto) formData.append("preview_photo", previewPhoto);
+      if (previewPhoto) formData.append("preview", previewPhoto);
       gallery.forEach((file, i) => formData.append(`gallery[${i}]`, file));
 
       await axios.post(
@@ -158,7 +158,7 @@ const CreateProduct = ({ productType }) => {
         {
           headers: { "Content-Type": "multipart/form-data" },
           withCredentials: true,
-        }
+        },
       );
 
       alert(`${config.itemName} created successfully!`);
@@ -359,7 +359,9 @@ const CreateProduct = ({ productType }) => {
               onChange={handleFormatChange}
               className="w-full bg-[#242426] text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="">Select {config.formatLabel.toLowerCase()}</option>
+              <option value="">
+                Select {config.formatLabel.toLowerCase()}
+              </option>
               {config.formatOptions.map((opt) => (
                 <option key={opt} value={opt}>
                   {opt}

@@ -112,7 +112,7 @@ const ProductList = ({ productType }) => {
           `${baseURL}fetch/site/products/getProducts.php?type=${config.apiType}`,
           {
             withCredentials: true,
-          }
+          },
         );
 
         if (response.data.status !== 1) {
@@ -139,14 +139,14 @@ const ProductList = ({ productType }) => {
 
         const total = transformedData.length;
         const active = transformedData.filter(
-          (d) => d.status === "active"
+          (d) => d.status === "active",
         ).length;
         const inactive = total - active;
         const sold = transformedData.reduce((sum, d) => sum + d.solds, 0);
         const soldFrom = transformedData.filter((d) => d.solds > 0).length;
         const income = transformedData.reduce(
           (sum, d) => sum + d.solds * d.finalPrice,
-          0
+          0,
         );
 
         setStats({ total, active, inactive, sold, soldFrom, income });
@@ -212,10 +212,11 @@ const ProductList = ({ productType }) => {
       width: 110,
       cellRenderer: (params) => (
         <span
-          className={`px-3 py-1 rounded-full text-xs font-medium ${params.value === "active"
-            ? "bg-green-900 text-green-300"
-            : "bg-gray-700 text-gray-300"
-            }`}
+          className={`px-3 py-1 rounded-full text-xs font-medium ${
+            params.value === "active"
+              ? "bg-green-900 text-green-300"
+              : "bg-gray-700 text-gray-300"
+          }`}
         >
           {params.value}
         </span>
@@ -238,7 +239,9 @@ const ProductList = ({ productType }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="text-white text-xl">Loading {config.loadingText}...</div>
+        <div className="text-white text-xl">
+          Loading {config.loadingText}...
+        </div>
       </div>
     );
   }

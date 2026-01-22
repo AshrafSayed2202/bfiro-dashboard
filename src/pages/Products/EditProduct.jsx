@@ -101,7 +101,7 @@ const EditProduct = () => {
           `${baseURL}fetch/site/products/getProduct.php?id=${id}`,
           {
             withCredentials: true,
-          }
+          },
         );
         const result = response.data;
 
@@ -112,7 +112,7 @@ const EditProduct = () => {
 
         const product = result.data;
         const typeKey = Object.keys(productConfigs).find(
-          (key) => productConfigs[key].apiType === product.type
+          (key) => productConfigs[key].apiType === product.type,
         );
 
         if (!typeKey) {
@@ -134,7 +134,7 @@ const EditProduct = () => {
         ];
         setPoints(paddedHighlights);
         setFormats(
-          product.formats ? product.formats.map((f) => f.text || "") : []
+          product.formats ? product.formats.map((f) => f.text || "") : [],
         );
 
         setPrice(product.price.toString() || "");
@@ -148,18 +148,18 @@ const EditProduct = () => {
         // Images
         const images = product.images || [];
         setCurrentCoverUrl(
-          images.find((img) => img.purpose === "cover")?.url || ""
+          images.find((img) => img.purpose === "cover")?.url || "",
         );
         setCurrentGalleryUrls(
           images
             .filter((img) => img.purpose === "gallery")
-            .map((img) => img.url)
+            .map((img) => img.url),
         );
         setCurrentPreviewPhotoUrl(
-          images.find((img) => img.purpose === "preview")?.url || ""
+          images.find((img) => img.purpose === "preview")?.url || "",
         );
         setCurrentThumbnailUrl(
-          images.find((img) => img.purpose === "bg")?.url || ""
+          images.find((img) => img.purpose === "bg")?.url || "",
         );
 
         // Files
@@ -233,7 +233,7 @@ const EditProduct = () => {
       formData.append("overview", overview);
       formData.append(
         "highlights",
-        JSON.stringify(points.filter((p) => p.trim()))
+        JSON.stringify(points.filter((p) => p.trim())),
       );
       formData.append("formats", formats.join(","));
       formData.append("price", price);
@@ -242,9 +242,9 @@ const EditProduct = () => {
       formData.append("labels", tags.join(","));
 
       if (templateFile) formData.append("template_file", templateFile);
-      if (thumbnail) formData.append("thumbnail", thumbnail);
+      if (thumbnail) formData.append("bg", thumbnail);
       if (cover) formData.append("cover", cover);
-      if (previewPhoto) formData.append("preview_photo", previewPhoto);
+      if (previewPhoto) formData.append("preview", previewPhoto);
       gallery.forEach((file, i) => formData.append(`gallery[${i}]`, file));
 
       await axios.post(
@@ -253,7 +253,7 @@ const EditProduct = () => {
         {
           headers: { "Content-Type": "multipart/form-data" },
           withCredentials: true,
-        }
+        },
       );
 
       alert(`${config.itemName} updated successfully!`);
@@ -271,7 +271,7 @@ const EditProduct = () => {
     if (deleting) return;
     if (
       !window.confirm(
-        `Are you sure you want to delete this ${config.itemName.toLowerCase()}? This action cannot be undone.`
+        `Are you sure you want to delete this ${config.itemName.toLowerCase()}? This action cannot be undone.`,
       )
     )
       return;
@@ -284,7 +284,7 @@ const EditProduct = () => {
         {},
         {
           withCredentials: true,
-        }
+        },
       );
       alert(`${config.itemName} deleted successfully!`);
       navigate(`/${config.path}`);
@@ -296,30 +296,31 @@ const EditProduct = () => {
     }
   };
 
-  const finalPrice = (parseFloat(price) - parseFloat(discount)) || parseFloat(price) || 0;
+  const finalPrice =
+    parseFloat(price) - parseFloat(discount) || parseFloat(price) || 0;
   const totalIncome = solds * finalPrice;
 
   const formatPrefix = {
     "any format": "formats",
-    "illustrator": "ai",
-    "powerpoint": "powerpoint",
+    illustrator: "ai",
+    powerpoint: "powerpoint",
     "3d studio max": "3ds",
-    "invision": "invision",
-    "react": "react",
+    invision: "invision",
+    react: "react",
     "after effects": "ae",
-    "keynote": "keynote",
-    "sketch": "sketch",
-    "blender": "blender",
-    "lottie": "lottie",
-    "swift": "swift",
+    keynote: "keynote",
+    sketch: "sketch",
+    blender: "blender",
+    lottie: "lottie",
+    swift: "swift",
     "cinema 4d": "c4d",
-    "lunacy": "lunacy",
-    "xcode": "xcode",
-    "figma": "figma",
-    "maya": "maya",
-    "xd": "xd",
-    "framer": "framer",
-    "photoshop": "ps",
+    lunacy: "lunacy",
+    xcode: "xcode",
+    figma: "figma",
+    maya: "maya",
+    xd: "xd",
+    framer: "framer",
+    photoshop: "ps",
   };
 
   if (!title)
@@ -331,7 +332,11 @@ const EditProduct = () => {
 
   return (
     <div>
-      <Header title={isEditMode ? `Edit ${config.itemName}` : `${config.itemName} Details`} />
+      <Header
+        title={
+          isEditMode ? `Edit ${config.itemName}` : `${config.itemName} Details`
+        }
+      />
 
       <div className="mt-8 bg-[#171718CC] p-8 rounded-[20px] max-w-7xl mx-auto">
         {/* Stats */}
@@ -414,7 +419,10 @@ const EditProduct = () => {
                   </label>
                   {currentThumbnailUrl && (
                     <img
-                      src={currentThumbnailUrl}
+                      src={
+                        "https://bfiro-assests.s3.eu-north-1.amazonaws.com/" +
+                        currentThumbnailUrl
+                      }
                       alt="current thumbnail"
                       className="mb-4 rounded-lg"
                     />
@@ -439,7 +447,10 @@ const EditProduct = () => {
                   </label>
                   {currentCoverUrl && (
                     <img
-                      src={currentCoverUrl}
+                      src={
+                        "https://bfiro-assests.s3.eu-north-1.amazonaws.com/" +
+                        currentCoverUrl
+                      }
                       alt="current cover"
                       className="mb-4 rounded-lg"
                     />
@@ -469,7 +480,10 @@ const EditProduct = () => {
                     {currentGalleryUrls.map((src, i) => (
                       <img
                         key={i}
-                        src={src}
+                        src={
+                          "https://bfiro-assests.s3.eu-north-1.amazonaws.com/" +
+                          src
+                        }
                         alt={`gallery ${i + 1}`}
                         className="rounded-lg h-40 object-cover"
                       />
@@ -491,7 +505,10 @@ const EditProduct = () => {
                 </label>
                 {currentPreviewPhotoUrl && (
                   <img
-                    src={currentPreviewPhotoUrl}
+                    src={
+                      "https://bfiro-assests.s3.eu-north-1.amazonaws.com/" +
+                      currentPreviewPhotoUrl
+                    }
                     alt="current preview"
                     className="mb-4 rounded-lg max-w-full"
                   />
@@ -590,7 +607,9 @@ const EditProduct = () => {
                     onChange={handleFormatChange}
                     className="w-full bg-[#242426] text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="">Select {config.formatLabel.toLowerCase()}</option>
+                    <option value="">
+                      Select {config.formatLabel.toLowerCase()}
+                    </option>
                     {config.formatOptions.map((opt) => (
                       <option key={opt} value={opt}>
                         {opt}
@@ -700,7 +719,10 @@ const EditProduct = () => {
           <div>
             {currentCoverUrl && (
               <img
-                src={currentCoverUrl}
+                src={
+                  "https://bfiro-assests.s3.eu-north-1.amazonaws.com/" +
+                  currentCoverUrl
+                }
                 alt="Cover"
                 className="w-full h-96 object-cover rounded-[20px] mb-10"
               />
@@ -735,7 +757,9 @@ const EditProduct = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
               <div>
-                <p className="text-lg text-gray-400 mb-3">{config.formatLabel}s</p>
+                <p className="text-lg text-gray-400 mb-3">
+                  {config.formatLabel}s
+                </p>
                 <div className="flex flex-wrap gap-3">
                   {formats.map((f, i) => {
                     const lowerText = f.toLowerCase();
@@ -797,7 +821,10 @@ const EditProduct = () => {
                   {currentGalleryUrls.map((src, i) => (
                     <img
                       key={i}
-                      src={src}
+                      src={
+                        "https://bfiro-assests.s3.eu-north-1.amazonaws.com/" +
+                        src
+                      }
                       alt={`Gallery ${i + 1}`}
                       className="rounded-lg w-full object-cover h-80"
                     />
@@ -813,7 +840,10 @@ const EditProduct = () => {
                 </h3>
                 {currentThumbnailUrl && (
                   <img
-                    src={currentThumbnailUrl}
+                    src={
+                      "https://bfiro-assests.s3.eu-north-1.amazonaws.com/" +
+                      currentThumbnailUrl
+                    }
                     alt="Thumbnail"
                     className="rounded-lg w-full"
                   />
@@ -825,7 +855,10 @@ const EditProduct = () => {
                 </h3>
                 {currentPreviewPhotoUrl && (
                   <img
-                    src={currentPreviewPhotoUrl}
+                    src={
+                      "https://bfiro-assests.s3.eu-north-1.amazonaws.com/" +
+                      currentPreviewPhotoUrl
+                    }
                     alt="Preview"
                     className="rounded-lg w-full"
                   />
@@ -838,8 +871,14 @@ const EditProduct = () => {
                 Download
               </h3>
               {currentTemplateFileName && (
-                <a href="#" className="text-blue-500 hover:underline text-xl">
-                  {currentTemplateFileName}
+                <a
+                  href={
+                    "https://bfiro-assests.s3.eu-north-1.amazonaws.com/" +
+                    currentTemplateFileName
+                  }
+                  className="text-blue-500 hover:underline text-xl"
+                >
+                  Download Template
                 </a>
               )}
             </div>
