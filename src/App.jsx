@@ -56,7 +56,7 @@ function App() {
           path="/"
           element={
             //
-            <ProtectedRoute isAuthenticated={true}>
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
               <DashboardLayout />
             </ProtectedRoute>
           }
