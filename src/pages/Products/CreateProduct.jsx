@@ -6,6 +6,7 @@ import { Editor } from "@tinymce/tinymce-react";
 import { TINYMCE_API_KEY } from "../../utils/env";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
+const storageUrl = "https://bfiro-assests.s3.eu-north-1.amazonaws.com/";
 
 const productConfigs = {
   "ui-kits": {
@@ -74,7 +75,7 @@ const CreateProduct = ({ productType }) => {
   const [templateFile, setTemplateFile] = useState(null);
   const [thumbnail, setThumbnail] = useState(null);
   const [cover, setCover] = useState(null);
-  const [gallery, setGallery] = useState([]);
+  const [gallery, setGallery] = useState([]); // Gallery files
   const [previewPhoto, setPreviewPhoto] = useState(null);
 
   const [saving, setSaving] = useState(false);
@@ -150,7 +151,9 @@ const CreateProduct = ({ productType }) => {
       if (thumbnail) formData.append("bg", thumbnail);
       if (cover) formData.append("cover", cover);
       if (previewPhoto) formData.append("preview", previewPhoto);
-      gallery.forEach((file, i) => formData.append(`gallery[${i}]`, file));
+
+      // Gallery files
+      gallery.forEach((file) => formData.append("gallery[]", file));
 
       await axios.post(
         `${baseURL}actions/products/createProduct.php`,
@@ -237,7 +240,7 @@ const CreateProduct = ({ productType }) => {
           </div>
         </div>
 
-        {/* Gallery */}
+        {/* Gallery - Multiple files */}
         <div className="mb-8">
           <label className="block text-white text-lg mb-3">
             Gallery Photos (803x628 recommended, multiple)

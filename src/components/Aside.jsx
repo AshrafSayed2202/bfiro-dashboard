@@ -26,6 +26,7 @@ import { toast } from "react-toastify";
 import { logout } from "../store/features/authSlice";
 import YearlyAccess from "../assets/svgs/YearlyAccess";
 import Team from "../assets/svgs/Team";
+import { RiNotificationSnoozeFill } from "react-icons/ri";
 const baseURL = import.meta.env.VITE_BASE_URL;
 
 const Aside = () => {
@@ -65,7 +66,7 @@ const Aside = () => {
   const isMaterialsActive = currentPath === "/ux-camp/materials";
   const isUsersActive = currentPath === "/users";
   const isLogoutActive = currentPath === "/login";
-
+  const isNotificationsActive = currentPath === "/notifications";
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [openCategories, setOpenCategories] = useState({
     products: isProductsActive,
@@ -98,7 +99,7 @@ const Aside = () => {
     await axios.post(
       baseURL + "actions/admin/users/logout.php",
       {},
-      { withCredentials: true }
+      { withCredentials: true },
     );
     dispatch(logout()); // Clears user from Redux state
     navigate("/login");
@@ -384,6 +385,19 @@ const Aside = () => {
                 <Team active={isTeamActive} />
               </div>
               {!isCollapsed && "Our Team"}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/notifications"
+              className={`flex trans-3 items-center p-4 hover:bg-[#333] ${
+                isCollapsed ? "" : "rounded-[10px]"
+              } ${isNotificationsActive ? "!bg-[#1D2030] text-[#1FCCFF]" : ""}`}
+            >
+              <div className="size-[24px] min-w-[24px] text-xl rounded-full flex items-center justify-center mr-2">
+                <RiNotificationSnoozeFill />
+              </div>
+              {!isCollapsed && "Notifications"}
             </Link>
           </li>
           <li>
