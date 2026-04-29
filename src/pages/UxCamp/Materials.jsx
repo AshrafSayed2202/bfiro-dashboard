@@ -21,10 +21,10 @@ const Materials = () => {
   const baseStorageUrl = `${storageURL}uxcamp/`;
 
   const typeToField = {
-    "E-book": "E-Book",
-    "UI Kit": "UI Kit",
-    "Mobile App Template": "Mobile App Template",
-    "Landing Page Template": "Landing Page Template",
+    "E-book": "e_book",
+    "UI Kit": "ui_kit",
+    "Mobile App Template": "mobile_app_template",
+    "Landing Page Template": "landing_page_template",
   };
 
   const availableTypes = Object.keys(typeToField);
@@ -38,7 +38,7 @@ const Materials = () => {
       setLoading(true);
       const response = await axios.get(
         `${baseURL}fetch/admin/uxCamp/materials.php`,
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       if (response.data.status !== 1) {
@@ -84,7 +84,7 @@ const Materials = () => {
     }
 
     const form = new FormData();
-    form.append(field, formData.file);
+    form.append(field, formData.file); // now safe key
 
     try {
       const response = await axios.post(
@@ -93,7 +93,7 @@ const Materials = () => {
         {
           headers: { "Content-Type": "multipart/form-data" },
           withCredentials: true,
-        }
+        },
       );
 
       if (response.data.status !== 1) {
